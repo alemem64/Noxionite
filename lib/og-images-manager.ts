@@ -9,8 +9,6 @@ interface SocialCardProps {
 }
 
 // Dynamic imports for server-side only modules
-let puppeteer: any
-let chromium: any
 let React: any
 let ReactDOMServer: any
 let fs: any
@@ -22,37 +20,6 @@ let localeConfig: any
 
 // Lazy load server-side modules
 async function loadServerModules() {
-  if (!puppeteer) {
-    try {
-      console.log('[loadServerModules] Attempting to load @sparticuz/chromium...');
-      const chromiumModule = await import('@sparticuz/chromium');
-      chromium = chromiumModule.default || chromiumModule;
-      console.log('[loadServerModules] Successfully loaded @sparticuz/chromium');
-      
-      // Import puppeteer-core for serverless environments
-      const puppeteerCore = await import('puppeteer-core');
-      puppeteer = puppeteerCore.default || puppeteerCore;
-      console.log('[loadServerModules] Successfully loaded puppeteer-core');
-      
-      // For Vercel/AWS Lambda, ensure we're using the correct chromium configuration
-      if (chromium && chromium.setGraphicsMode) {
-        chromium.setGraphicsMode = false;
-      }
-    } catch (err) {
-          console.error('[loadServerModules] Error loading server modules:', err);
-          
-          // Fallback to puppeteer-bundled if server modules fail to load
-          console.log('[loadServerModules] Falling back to puppeteer-bundled...');
-          try {
-            const puppeteerBundled = await import('puppeteer');
-            puppeteer = puppeteerBundled.default || puppeteerBundled;
-            console.log('[loadServerModules] Successfully loaded puppeteer-bundled');
-          } catch (bundledErr) {
-            console.error('[loadServerModules] Error loading puppeteer-bundled:', bundledErr);
-            throw new Error('Failed to load any browser automation library');
-          }
-        }
-  }
   if (!React) {
     React = await import('react')
   }
@@ -88,160 +55,92 @@ let browserPromise: Promise<any> | null = null
 // Get or create browser instance
 export async function getBrowser(): Promise<any> {
   if (cachedBrowser && cachedBrowser.isConnected()) {
-    
     return cachedBrowser
   }
 
   if (browserPromise) {
-    
     return browserPromise
   }
 
   await loadServerModules()
 
-  
-  
-  const _launchOptions = {
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-web-security',
-      '--disable-features=VizDisplayCompositor',
-      '--disable-gpu',
-      '--no-first-run',
-      '--no-default-browser-check',
-      '--disable-background-timer-throttling',
-      '--disable-backgrounding-occluded-windows',
-      '--disable-renderer-backgrounding',
-      '--disable-dev-shm-usage',
-      '--disable-extensions',
-      '--disable-plugins',
-    ]
+  const isProductionServerless = (process.env.VERCEL === '1' || process.env.NETLIFY === 'true') || 
+                                process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined;
+
+  let puppeteer: any;
+  let chromium: any;
+
+  if (isProductionServerless) {
+    console.log('[getBrowser] Loading modules for serverless environment');
+    try {
+      const chromiumModule = await import('@sparticuz/chromium');
+      chromium = chromiumModule.default || chromiumModule;
+      const puppeteerCore = await import('puppeteer-core');
+      puppeteer = puppeteerCore.default || puppeteerCore;
+    } catch (err) {
+      console.error('[getBrowser] Error loading serverless modules:', err);
+      throw err;
+    }
+  } else {
+    console.log('[getBrowser] Loading full puppeteer for local environment');
+    try {
+      const puppeteerBundled = await import('puppeteer');
+      puppeteer = puppeteerBundled.default || puppeteerBundled;
+    } catch (err) {
+      console.error('[getBrowser] Error loading local puppeteer:', err);
+      throw err;
+    }
   }
 
   try {
-    // Check environment - use proper chromium for serverless
-    const isProductionServerless = (process.env.VERCEL === '1' || process.env.NETLIFY === 'true') || 
-                                  process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined;
-    
-    console.log(`[getBrowser] isProductionServerless: ${isProductionServerless}, chromium available: ${!!chromium}`);
+    console.log(`[getBrowser] isProductionServerless: ${isProductionServerless}`);
 
+    let browser;
     if (isProductionServerless && chromium) {
       console.log('[getBrowser] Using @sparticuz/chromium for serverless environment.');
-      console.log('[getBrowser] Environment check:', {
-        VERCEL: process.env.VERCEL,
-        NETLIFY: process.env.NETLIFY,
-        AWS_LAMBDA: process.env.AWS_LAMBDA_FUNCTION_NAME,
-        NODE_ENV: process.env.NODE_ENV,
-        PUPPETEER_EXECUTABLE_PATH: process.env.PUPPETEER_EXECUTABLE_PATH
-      });
-      console.log('[getBrowser] Chromium module structure:', Object.keys(chromium));
-      
-      // Ensure we're using the correct chromium instance
+      // ... (keep the serverless launch logic as is)
       const chromiumInstance = chromium.default || chromium;
-      console.log('[getBrowser] Chromium instance keys:', Object.keys(chromiumInstance));
-      
-      let executablePath;
-      try {
-        executablePath = await chromiumInstance.executablePath();
-      } catch (err) {
-        console.error('[getBrowser] Error getting executablePath:', err);
-        // Fallback to environment variable
+      let executablePath = await chromiumInstance.executablePath;
+      if (!executablePath) {
         executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
       }
-      
-      console.log(`[getBrowser] Chromium executable path: ${executablePath}`);
-      
       if (!executablePath) {
-        throw new Error('Could not determine Chromium executable path from @sparticuz/chromium');
+        throw new Error('Could not determine Chromium executable path');
       }
-      
-      // Check if executable exists
-      try {
-        const fs = await import('node:fs');
-        if (!fs.existsSync(executablePath)) {
-          throw new Error(`Chromium executable not found at: ${executablePath}`);
-        }
-        console.log('[getBrowser] Chromium executable found at:', executablePath);
-      } catch (err) {
-        console.log('[getBrowser] Error checking executable:', err);
-      }
-      
-      // Use the AWS Lambda-compatible configuration from @sparticuz/chromium
-      const launchArgs = [
-        ...chromiumInstance.args,
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--single-process'
-      ];
-      
-      console.log('[getBrowser] Using @sparticuz/chromium args:', chromiumInstance.args);
-      console.log('[getBrowser] Final launch args:', launchArgs);
-      
-      // Set environment variables to handle missing system libraries on Vercel/AWS
+      const launchArgs = [...chromiumInstance.args, '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--single-process'];
       const env = {
         ...process.env,
-        // Prepend the path to the bundled libraries
         LD_LIBRARY_PATH: `/var/task/lib:${process.env.LD_LIBRARY_PATH || ''}`,
-        // Point to the bundled fonts
         FONTCONFIG_PATH: '/var/task/fonts',
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true',
         PUPPETEER_EXECUTABLE_PATH: executablePath,
       };
-      
-      console.log('[getBrowser] Environment configured for serverless');
-      
-      browserPromise = (async () => {
-        const launchConfig = {
-          args: launchArgs,
-          executablePath,
-          headless: chromiumInstance.headless,
-          ignoreHTTPSErrors: true,
-          env,
-        };
-
-        try {
-          console.log('[getBrowser] Attempting to launch browser with config:', launchConfig);
-          return await puppeteer.launch(launchConfig);
-        } catch (err) {
-          const errorMessage = err instanceof Error ? err.message : String(err);
-          console.error('[getBrowser] Failed to launch browser on first attempt:', err);
-
-          if (errorMessage.includes('libnss3.so')) {
-            console.log('[getBrowser] Attempting fallback for missing libnss3.so');
-            
-            const minimalArgs = [
-              '--no-sandbox',
-              '--single-process',
-              '--disable-dev-shm-usage',
-              '--disable-gpu',
-              '--disable-web-security',
-              '--no-first-run',
-              '--disable-features=VizDisplayCompositor',
-            ];
-
-            const fallbackConfig = {
-                ...launchConfig,
-                args: minimalArgs,
-                headless: true, // Force headless for fallback
-            };
-            
-            console.log('[getBrowser] Attempting to launch browser with fallback config:', fallbackConfig);
-            return puppeteer.launch(fallbackConfig);
-          }
-          
-          // If not the specific error, or if fallback fails, rethrow.
+      const launchConfig = {
+        args: launchArgs,
+        executablePath,
+        headless: chromiumInstance.headless,
+        ignoreHTTPSErrors: true,
+        env,
+      };
+      try {
+        browser = await puppeteer.launch(launchConfig);
+      } catch (err) {
+        if ((err as Error).message.includes('libnss3.so')) {
+          const minimalArgs = ['--no-sandbox', '--single-process', '--disable-dev-shm-usage', '--disable-gpu', '--disable-web-security', '--no-first-run', '--disable-features=VizDisplayCompositor'];
+          launchConfig.args = minimalArgs;
+          launchConfig.headless = true;
+          browser = await puppeteer.launch(launchConfig);
+        } else {
           throw err;
         }
-      })();
+      }
     } else {
       console.log('[getBrowser] Using local puppeteer-bundled browser.');
-      // For local development, use the browser bundled with the puppeteer package.
       const executablePath = puppeteer.executablePath();
-      console.log(`[getBrowser] Local puppeteer executable path: ${executablePath}`);
-      browserPromise = puppeteer.launch({
+      if (!executablePath) {
+        throw new Error('Local puppeteer executable path is undefined');
+      }
+      browser = await puppeteer.launch({
         headless: true,
         args: [
           '--no-sandbox',
@@ -259,36 +158,16 @@ export async function getBrowser(): Promise<any> {
           '--disable-plugins',
         ],
         executablePath,
-      })
+      });
     }
 
-    const browser = await browserPromise
-    if (!browser) {
-      throw new Error('Failed to launch browser')
-    }
-    cachedBrowser = browser
-    
-    return browser
+    cachedBrowser = browser;
+    return browser;
   } catch (err) {
-    console.error('[getBrowser] Failed to launch browser:', err)
-    console.error('[getBrowser] Error details:', JSON.stringify(err, null, 2));
-    
-    // Provide helpful error message for libnss3.so missing
-    if ((err as Error).message.includes('libnss3.so')) {
-      console.error('[getBrowser] libnss3.so missing: This is a known issue with Puppeteer on Vercel. Make sure you are using @sparticuz/chromium and have the correct args.')
-    }
-    
-    // Provide helpful error message for ENOEXEC
-    if ((err as NodeJS.ErrnoException).code === 'ENOEXEC') {
-      console.error('[getBrowser] ENOEXEC: This usually means the browser executable is not compatible with your system')
-      console.error('[getBrowser] For local development, ensure Chrome/Chromium is installed and accessible')
-      console.error('[getBrowser] Try: npm install puppeteer --save-dev')
-    }
-    
-    browserPromise = null
-    throw err
+    console.error('[getBrowser] Failed to launch browser:', err);
+    throw err;
   } finally {
-    browserPromise = null
+    browserPromise = null;
   }
 }
 
