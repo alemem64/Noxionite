@@ -106,7 +106,7 @@ export async function getBrowser(): Promise<any> {
     
     if (isProductionServerless && chromium) {
       // Use @sparticuz/chromium for Vercel serverless
-      const executablePath = await chromium.executablePath();
+      const executablePath = await chromium.executablePath;
       browserPromise = puppeteer.launch({
         args: chromium.args,
         executablePath,
