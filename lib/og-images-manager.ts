@@ -23,16 +23,35 @@ let localeConfig: any
 // Lazy load server-side modules
 async function loadServerModules() {
   if (!puppeteer) {
-    puppeteer = (await import('puppeteer')).default
-  }
-  if (!chromium) {
     try {
-      const chromiumModule = await import('@sparticuz/chromium')
-      chromium = chromiumModule.default || chromiumModule
-    } catch {
-      // Fallback for environments without chromium
-      chromium = null
-    }
+      console.log('[loadServerModules] Attempting to load @sparticuz/chromium...');
+      const chromiumModule = await import('@sparticuz/chromium');
+      chromium = chromiumModule.default || chromiumModule;
+      console.log('[loadServerModules] Successfully loaded @sparticuz/chromium');
+      
+      // Import puppeteer-core for serverless environments
+      const puppeteerCore = await import('puppeteer-core');
+      puppeteer = puppeteerCore.default || puppeteerCore;
+      console.log('[loadServerModules] Successfully loaded puppeteer-core');
+      
+      // For Vercel/AWS Lambda, ensure we're using the correct chromium configuration
+      if (chromium && chromium.setGraphicsMode) {
+        chromium.setGraphicsMode = false;
+      }
+    } catch (err) {
+        console.error('[loadServerModules] Error loading server modules:', err);
+        
+        // Fallback to puppeteer-bundled if server modules fail to load
+        console.log('[loadServerModules] Falling back to puppeteer-bundled...');
+        try {
+          const puppeteerBundled = await import('puppeteer');
+          puppeteer = puppeteerBundled.default || puppeteerBundled;
+          console.log('[loadServerModules] Successfully loaded puppeteer-bundled');
+        } catch (bundledErr) {
+          console.error('[loadServerModules] Error loading puppeteer-bundled:', bundledErr);
+          throw new Error('Failed to load any browser automation library');
+        }
+      }
   }
   if (!React) {
     React = await import('react')
@@ -138,31 +157,96 @@ export async function getBrowser(): Promise<any> {
         throw new Error('Could not determine Chromium executable path from @sparticuz/chromium');
       }
       
-      // Use chromium's recommended args and settings
-      const launchArgs = chromiumInstance.args || [
+      // Check if executable exists
+      try {
+        const fs = await import('node:fs');
+        if (!fs.existsSync(executablePath)) {
+          throw new Error(`Chromium executable not found at: ${executablePath}`);
+        }
+        console.log('[getBrowser] Chromium executable found at:', executablePath);
+      } catch (err) {
+        console.log('[getBrowser] Error checking executable:', err);
+      }
+      
+      // Use the AWS Lambda-compatible configuration from @sparticuz/chromium
+      // This should include all necessary dependencies
+      const launchArgs = [
+        ...chromiumInstance.args,
         '--no-sandbox',
-        '--disable-setuid-sandbox',
+        '--single-process',
+        '--disable-dev-shm-usage',
+        '--no-zygote',
+        '--disable-gpu',
         '--disable-web-security',
         '--disable-features=VizDisplayCompositor',
-        '--disable-gpu',
         '--no-first-run',
         '--no-default-browser-check',
         '--disable-background-timer-throttling',
         '--disable-backgrounding-occluded-windows',
         '--disable-renderer-backgrounding',
-        '--disable-dev-shm-usage',
-        '--disable-extensions',
-        '--disable-plugins',
       ];
       
-      console.log('[getBrowser] Launch args:', launchArgs);
+      console.log('[getBrowser] Using @sparticuz/chromium args:', chromiumInstance.args);
+      console.log('[getBrowser] Final launch args:', launchArgs);
       
-      browserPromise = puppeteer.launch({
-        args: launchArgs,
-        executablePath,
-        headless: chromiumInstance.headless !== false,
-        ignoreHTTPSErrors: true,
-      });
+      // Set environment variables to handle missing system libraries
+      const env = {
+        ...process.env,
+        // Add paths where AWS Lambda/Vercel might store system libraries
+        LD_LIBRARY_PATH: [
+          '/tmp',
+          '/var/task',
+          '/var/runtime/lib',
+          '/usr/lib',
+          '/usr/lib/x86_64-linux-gnu',
+          '/opt/lib',
+        ].join(':'),
+        FONTCONFIG_PATH: '/tmp',
+        // Tell Chrome to use minimal system dependencies
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true',
+        PUPPETEER_EXECUTABLE_PATH: executablePath,
+      };
+      
+      console.log('[getBrowser] Environment configured for serverless');
+      
+      try {
+        browserPromise = puppeteer.launch({
+          args: launchArgs,
+          executablePath,
+          headless: chromiumInstance.headless,
+          ignoreHTTPSErrors: true,
+          env,
+        });
+      } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : String(err);
+          console.error('[getBrowser] Failed to launch browser:', err);
+          
+          // If we get libnss3.so error, try with minimal configuration
+          if (errorMessage.includes('libnss3.so')) {
+            console.log('[getBrowser] Attempting fallback for missing libnss3.so');
+            
+            // Try launching with even more minimal args
+            const minimalArgs = [
+              '--no-sandbox',
+              '--single-process',
+              '--disable-dev-shm-usage',
+              '--disable-gpu',
+              '--disable-web-security',
+              '--no-first-run',
+              '--disable-features=VizDisplayCompositor',
+            ];
+            
+            browserPromise = puppeteer.launch({
+              args: minimalArgs,
+              executablePath,
+              headless: true,
+              ignoreHTTPSErrors: true,
+              env,
+            });
+          } else {
+            throw err;
+          }
+        }
     } else {
       console.log('[getBrowser] Using local puppeteer-bundled browser.');
       // For local development, use the browser bundled with the puppeteer package.
