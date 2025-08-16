@@ -1,6 +1,6 @@
 import type { SiteMap, PageInfo } from './context/types'
 import { buildTagGraphData } from './context/tag-graph';
-
+import { error } from 'node:console';
 // Interface for SocialCard props - matches SocialCard component
 interface SocialCardProps {
   url: string;
@@ -127,8 +127,8 @@ export async function getBrowser(): Promise<any> {
       let executablePath;
       try {
         executablePath = await chromiumInstance.executablePath();
-      } catch (error) {
-        console.error('[getBrowser] Error getting executablePath:', error);
+      } catch (err) {
+        console.error('[getBrowser] Error getting executablePath:', err);
         // Fallback to environment variable
         executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
       }
