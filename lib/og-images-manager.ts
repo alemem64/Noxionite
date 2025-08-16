@@ -28,7 +28,8 @@ async function loadServerModules() {
   }
   if (!chromium) {
     try {
-      chromium = await import('@sparticuz/chromium')
+      const chromiumModule = await import('@sparticuz/chromium')
+      chromium = chromiumModule.default || chromiumModule
     } catch {
       // Fallback for environments without chromium
       chromium = null
@@ -103,20 +104,64 @@ export async function getBrowser(): Promise<any> {
 
   try {
     // Check environment - use proper chromium for serverless
-    const isProductionServerless = (process.env.VERCEL === '1' || process.env.NETLIFY === 'true') && 
-                                  process.env.NODE_ENV === 'production';
+    const isProductionServerless = (process.env.VERCEL === '1' || process.env.NETLIFY === 'true') || 
+                                  process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined;
     
     console.log(`[getBrowser] isProductionServerless: ${isProductionServerless}, chromium available: ${!!chromium}`);
 
     if (isProductionServerless && chromium) {
       console.log('[getBrowser] Using @sparticuz/chromium for serverless environment.');
-      // Use @sparticuz/chromium for Vercel serverless
-      const executablePath = await chromium.executablePath;
+      console.log('[getBrowser] Environment check:', {
+        VERCEL: process.env.VERCEL,
+        NETLIFY: process.env.NETLIFY,
+        AWS_LAMBDA: process.env.AWS_LAMBDA_FUNCTION_NAME,
+        NODE_ENV: process.env.NODE_ENV,
+        PUPPETEER_EXECUTABLE_PATH: process.env.PUPPETEER_EXECUTABLE_PATH
+      });
+      console.log('[getBrowser] Chromium module structure:', Object.keys(chromium));
+      
+      // Ensure we're using the correct chromium instance
+      const chromiumInstance = chromium.default || chromium;
+      console.log('[getBrowser] Chromium instance keys:', Object.keys(chromiumInstance));
+      
+      let executablePath;
+      try {
+        executablePath = await chromiumInstance.executablePath();
+      } catch (error) {
+        console.error('[getBrowser] Error getting executablePath:', error);
+        // Fallback to environment variable
+        executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+      }
+      
       console.log(`[getBrowser] Chromium executable path: ${executablePath}`);
+      
+      if (!executablePath) {
+        throw new Error('Could not determine Chromium executable path from @sparticuz/chromium');
+      }
+      
+      // Use chromium's recommended args and settings
+      const launchArgs = chromiumInstance.args || [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-web-security',
+        '--disable-features=VizDisplayCompositor',
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-default-browser-check',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding',
+        '--disable-dev-shm-usage',
+        '--disable-extensions',
+        '--disable-plugins',
+      ];
+      
+      console.log('[getBrowser] Launch args:', launchArgs);
+      
       browserPromise = puppeteer.launch({
-        args: chromium.args,
+        args: launchArgs,
         executablePath,
-        headless: chromium.headless,
+        headless: chromiumInstance.headless !== false,
         ignoreHTTPSErrors: true,
       });
     } else {
