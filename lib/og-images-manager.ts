@@ -169,63 +169,49 @@ export async function getBrowser(): Promise<any> {
       }
       
       // Use the AWS Lambda-compatible configuration from @sparticuz/chromium
-      // This should include all necessary dependencies
       const launchArgs = [
         ...chromiumInstance.args,
         '--no-sandbox',
-        '--single-process',
+        '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
-        '--no-zygote',
-        '--disable-gpu',
-        '--disable-web-security',
-        '--disable-features=VizDisplayCompositor',
-        '--no-first-run',
-        '--no-default-browser-check',
-        '--disable-background-timer-throttling',
-        '--disable-backgrounding-occluded-windows',
-        '--disable-renderer-backgrounding',
+        '--single-process'
       ];
       
       console.log('[getBrowser] Using @sparticuz/chromium args:', chromiumInstance.args);
       console.log('[getBrowser] Final launch args:', launchArgs);
       
-      // Set environment variables to handle missing system libraries
+      // Set environment variables to handle missing system libraries on Vercel/AWS
       const env = {
         ...process.env,
-        // Add paths where AWS Lambda/Vercel might store system libraries
-        LD_LIBRARY_PATH: [
-          '/tmp',
-          '/var/task',
-          '/var/runtime/lib',
-          '/usr/lib',
-          '/usr/lib/x86_64-linux-gnu',
-          '/opt/lib',
-        ].join(':'),
-        FONTCONFIG_PATH: '/tmp',
-        // Tell Chrome to use minimal system dependencies
+        // Prepend the path to the bundled libraries
+        LD_LIBRARY_PATH: `/var/task/lib:${process.env.LD_LIBRARY_PATH || ''}`,
+        // Point to the bundled fonts
+        FONTCONFIG_PATH: '/var/task/fonts',
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true',
         PUPPETEER_EXECUTABLE_PATH: executablePath,
       };
       
       console.log('[getBrowser] Environment configured for serverless');
       
-      try {
-        browserPromise = puppeteer.launch({
+      browserPromise = (async () => {
+        const launchConfig = {
           args: launchArgs,
           executablePath,
           headless: chromiumInstance.headless,
           ignoreHTTPSErrors: true,
           env,
-        });
-      } catch (err) {
+        };
+
+        try {
+          console.log('[getBrowser] Attempting to launch browser with config:', launchConfig);
+          return await puppeteer.launch(launchConfig);
+        } catch (err) {
           const errorMessage = err instanceof Error ? err.message : String(err);
-          console.error('[getBrowser] Failed to launch browser:', err);
-          
-          // If we get libnss3.so error, try with minimal configuration
+          console.error('[getBrowser] Failed to launch browser on first attempt:', err);
+
           if (errorMessage.includes('libnss3.so')) {
             console.log('[getBrowser] Attempting fallback for missing libnss3.so');
             
-            // Try launching with even more minimal args
             const minimalArgs = [
               '--no-sandbox',
               '--single-process',
@@ -235,18 +221,21 @@ export async function getBrowser(): Promise<any> {
               '--no-first-run',
               '--disable-features=VizDisplayCompositor',
             ];
+
+            const fallbackConfig = {
+                ...launchConfig,
+                args: minimalArgs,
+                headless: true, // Force headless for fallback
+            };
             
-            browserPromise = puppeteer.launch({
-              args: minimalArgs,
-              executablePath,
-              headless: true,
-              ignoreHTTPSErrors: true,
-              env,
-            });
-          } else {
-            throw err;
+            console.log('[getBrowser] Attempting to launch browser with fallback config:', fallbackConfig);
+            return puppeteer.launch(fallbackConfig);
           }
+          
+          // If not the specific error, or if fallback fails, rethrow.
+          throw err;
         }
+      })();
     } else {
       console.log('[getBrowser] Using local puppeteer-bundled browser.');
       // For local development, use the browser bundled with the puppeteer package.
