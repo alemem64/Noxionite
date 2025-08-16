@@ -38,9 +38,9 @@ export default siteConfig({
   // author metadata (optional)
   authors: [
     {
-      name: 'Jzahnny',                       // Author name
-      avatar_dir: '/authors/Jzahnny.jpeg',   // Author avatar image path in public folder (28px x 28px recommended)
-      home_url: 'https://bit.ly/alemem64',   // Author home URL
+      name: 'Jaewan Shin',                     // Author name
+      avatar_dir: '/authors/Jzahnny.jpeg',     // Author avatar image path in public folder
+      home_url: 'https://jzahnny.vercel.app',  // Author home URL
     }
   ],
 

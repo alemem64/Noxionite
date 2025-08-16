@@ -78,6 +78,8 @@ export async function getBrowser(): Promise<any> {
     return browserPromise
   }
 
+  await loadServerModules()
+
   
   
   const _launchOptions = {
@@ -104,9 +106,13 @@ export async function getBrowser(): Promise<any> {
     const isProductionServerless = (process.env.VERCEL === '1' || process.env.NETLIFY === 'true') && 
                                   process.env.NODE_ENV === 'production';
     
+    console.log(`[getBrowser] isProductionServerless: ${isProductionServerless}, chromium available: ${!!chromium}`);
+
     if (isProductionServerless && chromium) {
+      console.log('[getBrowser] Using @sparticuz/chromium for serverless environment.');
       // Use @sparticuz/chromium for Vercel serverless
       const executablePath = await chromium.executablePath;
+      console.log(`[getBrowser] Chromium executable path: ${executablePath}`);
       browserPromise = puppeteer.launch({
         args: chromium.args,
         executablePath,
@@ -114,7 +120,10 @@ export async function getBrowser(): Promise<any> {
         ignoreHTTPSErrors: true,
       });
     } else {
+      console.log('[getBrowser] Using local puppeteer-bundled browser.');
       // For local development, use the browser bundled with the puppeteer package.
+      const executablePath = puppeteer.executablePath();
+      console.log(`[getBrowser] Local puppeteer executable path: ${executablePath}`);
       browserPromise = puppeteer.launch({
         headless: true,
         args: [
@@ -132,7 +141,7 @@ export async function getBrowser(): Promise<any> {
           '--disable-extensions',
           '--disable-plugins',
         ],
-        executablePath: puppeteer.executablePath(),
+        executablePath,
       })
     }
 
