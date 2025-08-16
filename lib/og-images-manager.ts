@@ -28,7 +28,7 @@ async function loadServerModules() {
   }
   if (!chromium) {
     try {
-      chromium = (await import('@sparticuz/chromium')).default
+      chromium = await import('@sparticuz/chromium')
     } catch {
       // Fallback for environments without chromium
       chromium = null
@@ -100,34 +100,20 @@ export async function getBrowser(): Promise<any> {
   }
 
   try {
-    // Check environment - skip Chromium for local development
+    // Check environment - use proper chromium for serverless
     const isProductionServerless = (process.env.VERCEL === '1' || process.env.NETLIFY === 'true') && 
                                   process.env.NODE_ENV === 'production';
     
     if (isProductionServerless && chromium) {
-
-      const executablePath = await chromium.executablePath()
+      // Use @sparticuz/chromium for Vercel serverless
+      const executablePath = await chromium.executablePath();
       browserPromise = puppeteer.launch({
-        headless: true,
-        args: chromium.args || [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-web-security',
-          '--disable-features=VizDisplayCompositor',
-          '--disable-gpu',
-          '--no-first-run',
-          '--no-default-browser-check',
-          '--disable-background-timer-throttling',
-          '--disable-backgrounding-occluded-windows',
-          '--disable-renderer-backgrounding',
-          '--disable-dev-shm-usage',
-          '--disable-extensions',
-          '--disable-plugins',
-        ],
+        args: chromium.args,
         executablePath,
-      })
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
+      });
     } else {
-
       // For local development, use the browser bundled with the puppeteer package.
       browserPromise = puppeteer.launch({
         headless: true,
@@ -159,12 +145,12 @@ export async function getBrowser(): Promise<any> {
     return browser
   } catch (err) {
     console.error('[getBrowser] Failed to launch browser:', err)
-    console.error('[getBrowser] Error details:', {
-      code: (err as NodeJS.ErrnoException).code,
-      errno: (err as NodeJS.ErrnoException).errno,
-      syscall: (err as NodeJS.ErrnoException).syscall,
-      message: (err as Error).message
-    });
+    console.error('[getBrowser] Error details:', JSON.stringify(err, null, 2));
+    
+    // Provide helpful error message for libnss3.so missing
+    if ((err as Error).message.includes('libnss3.so')) {
+      console.error('[getBrowser] libnss3.so missing: This is a known issue with Puppeteer on Vercel. Make sure you are using @sparticuz/chromium and have the correct args.')
+    }
     
     // Provide helpful error message for ENOEXEC
     if ((err as NodeJS.ErrnoException).code === 'ENOEXEC') {

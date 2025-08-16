@@ -41,7 +41,6 @@
 
     "@sparticuz/chromium": "^123.0.1",
     "@types/react-transition-group": "^4.4.12",
-    "chrome-aws-lambda": "^10.1.0",
     
     "classnames": "^2.5.1",
     "expiry-map": "^2.0.0",
