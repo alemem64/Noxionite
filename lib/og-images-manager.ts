@@ -1,6 +1,5 @@
 import type { SiteMap, PageInfo } from './context/types'
 import { buildTagGraphData } from './context/tag-graph';
-import { error } from 'node:console';
 // Interface for SocialCard props - matches SocialCard component
 interface SocialCardProps {
   url: string;
