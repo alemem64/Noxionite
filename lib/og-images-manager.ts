@@ -39,19 +39,19 @@ async function loadServerModules() {
         chromium.setGraphicsMode = false;
       }
     } catch (err) {
-        console.error('[loadServerModules] Error loading server modules:', err);
-        
-        // Fallback to puppeteer-bundled if server modules fail to load
-        console.log('[loadServerModules] Falling back to puppeteer-bundled...');
-        try {
-          const puppeteerBundled = await import('puppeteer');
-          puppeteer = puppeteerBundled.default || puppeteerBundled;
-          console.log('[loadServerModules] Successfully loaded puppeteer-bundled');
-        } catch (bundledErr) {
-          console.error('[loadServerModules] Error loading puppeteer-bundled:', bundledErr);
-          throw new Error('Failed to load any browser automation library');
+          console.error('[loadServerModules] Error loading server modules:', err);
+          
+          // Fallback to puppeteer-bundled if server modules fail to load
+          console.log('[loadServerModules] Falling back to puppeteer-bundled...');
+          try {
+            const puppeteerBundled = await import('puppeteer');
+            puppeteer = puppeteerBundled.default || puppeteerBundled;
+            console.log('[loadServerModules] Successfully loaded puppeteer-bundled');
+          } catch (bundledErr) {
+            console.error('[loadServerModules] Error loading puppeteer-bundled:', bundledErr);
+            throw new Error('Failed to load any browser automation library');
+          }
         }
-      }
   }
   if (!React) {
     React = await import('react')
