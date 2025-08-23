@@ -9,10 +9,11 @@ import { getCachedSiteMap } from '@/lib/context/site-cache'
 import { getPage } from '@/lib/notion'
 import { site } from '@/lib/config'
 import siteConfig from '../../site.config'
+import { getBlockTitle } from 'notion-utils'
 
 export interface NestedPostPageProps {
   site: types.Site
-  siteMap: types.SiteMap
+  siteMap?: types.SiteMap
   pageId: string
   recordMap?: types.ExtendedRecordMap
   isPrivate?: boolean
@@ -164,6 +165,12 @@ export const getStaticProps: GetStaticProps<NestedPostPageProps, { slug: string[
       }
     }
 
+    // Calculate meta data for Open Graph
+    const block = recordMap.block?.[currentPageId]?.value
+    const title = block ? getBlockTitle(block, recordMap) : pageInfo?.title || site.name
+    const description = pageInfo?.description || site.description || ''
+    const image = pageInfo?.coverImage || null
+
     return {
       props: {
         ...(await serverSideTranslations(locale, ['common', 'languages'], nextI18NextConfig)),
@@ -172,14 +179,29 @@ export const getStaticProps: GetStaticProps<NestedPostPageProps, { slug: string[
         pageId: currentPageId,
         recordMap,
         slugPath: slug,
+        meta: {
+          title,
+          description,
+          image
+        }
       },
       revalidate: site.isr?.revalidate ?? 60,
     }
   } catch (err) {
     console.error('Error fetching nested post page:', err)
     return {
-      notFound: true,
-      revalidate: site.isr?.revalidate ?? 60,
+      props: {
+        ...(await serverSideTranslations(locale, ['common', 'languages'], nextI18NextConfig)),
+        site,
+        siteMap: undefined,
+        pageId: 'error',
+        meta: {
+          title: site.name,
+          description: site.description,
+          image: null
+        }
+      },
+      revalidate: site.isr?.revalidate ?? 60
     }
   }
 }

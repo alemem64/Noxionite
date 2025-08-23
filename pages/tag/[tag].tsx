@@ -75,6 +75,8 @@ export const getStaticProps: GetStaticProps<TagPageProps, { tag: string }> = asy
 
     // Allow UTF-8 characters in tags
     const decodedTag = decodeURIComponent(tag)
+    const title = `#${decodedTag} - ${siteMap.site.name}`
+    const description = `Posts tagged with ${decodedTag}`
     
     return {
       props: {
@@ -82,6 +84,11 @@ export const getStaticProps: GetStaticProps<TagPageProps, { tag: string }> = asy
         site: siteMap.site,
         siteMap,
         tag: decodedTag,
+        meta: {
+          title,
+          description,
+          image: null
+        }
       },
       revalidate: site.isr?.revalidate ?? 60,
     }

@@ -138,6 +138,8 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
     }
   }, [isMobile, mounted])
 
+  // Use meta from pageProps if available, otherwise calculate
+  const meta = (pageProps as any)?.meta
   const { siteMap, recordMap, pageId } = pageProps
   const pageBlockForCover = pageId ? recordMap?.block?.[pageId]?.value : undefined
   const pageCover = pageBlockForCover?.format?.page_cover
@@ -147,7 +149,7 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
   const categoryCoverImage = pageInfo?.coverImage
   
   // Use category cover image if available, otherwise use recordMap cover
-  const notionImageUrl = categoryCoverImage || (pageBlockForCover ? mapImageUrl(pageCover, pageBlockForCover) : undefined)
+  const notionImageUrl = meta?.image || categoryCoverImage || (pageBlockForCover ? mapImageUrl(pageCover, pageBlockForCover) : undefined)
 
   const [screenWidth, setScreenWidth] = React.useState(0)
   React.useEffect(() => {
@@ -194,67 +196,67 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
     pageInfo
   }
 
-
-  // Determine page title and description based on route
   const { pathname, query } = router;
-  let pageTitle = pageProps.site?.name || '';
-  let pageDescription = pageProps.site?.description || '';
+  let pageTitle = meta?.title || pageProps.site?.name || '';
+  let pageDescription = meta?.description || pageProps.site?.description || '';
   
-  if (pathname === '/') {
-    pageTitle = pageProps.site?.name || '';
-    pageDescription = pageProps.site?.description || '';
-  } else if (pathname === '/post/[...slug]') {
-    const block = pageProps.pageId && pageProps.recordMap?.block?.[pageProps.pageId]?.value;
-    if (block && pageProps.recordMap) {
-      pageTitle = getBlockTitle(block, pageProps.recordMap);
-      
-      // Try to get description from siteMap's pageInfoMap first
-      if (pageProps.siteMap?.pageInfoMap && pageProps.pageId) {
-        const pageInfo = pageProps.siteMap.pageInfoMap[pageProps.pageId];
-        if (pageInfo?.description) {
-          pageDescription = pageInfo.description;
+  if (!meta) {
+    if (pathname === '/') {
+      pageTitle = pageProps.site?.name || '';
+      pageDescription = pageProps.site?.description || '';
+    } else if (pathname === '/post/[...slug]') {
+      const block = pageProps.pageId && pageProps.recordMap?.block?.[pageProps.pageId]?.value;
+      if (block && pageProps.recordMap) {
+        pageTitle = getBlockTitle(block, pageProps.recordMap);
+        
+        // Try to get description from siteMap's pageInfoMap first
+        if (pageProps.siteMap?.pageInfoMap && pageProps.pageId) {
+          const pageInfo = pageProps.siteMap.pageInfoMap[pageProps.pageId];
+          if (pageInfo?.description) {
+            pageDescription = pageInfo.description;
+          } else {
+            // Fallback to block properties if description not in siteMap
+            const description = block.properties?.description?.[0]?.[0];
+            pageDescription = description || '';
+          }
         } else {
-          // Fallback to block properties if description not in siteMap
+          // Fallback to block properties if siteMap not available
           const description = block.properties?.description?.[0]?.[0];
           pageDescription = description || '';
         }
       } else {
-        // Fallback to block properties if siteMap not available
-        const description = block.properties?.description?.[0]?.[0];
-        pageDescription = description || '';
+        pageTitle = pageProps.site?.name || '';
+        pageDescription = '';
       }
-    } else {
-      pageTitle = pageProps.site?.name || '';
-      pageDescription = '';
-    }
-  } else if (pathname === '/category/[slug]') {
-    const slug = query.slug as string;
-    const locale = router.locale || localeConfig.defaultLocale;
-    
-    // Find the category page info by slug and locale
-    let categoryTitle = slug;
-    if (pageProps.siteMap?.pageInfoMap) {
-      for (const [pageInfo] of Object.entries(pageProps.siteMap.pageInfoMap)) {
-        const page = pageInfo as any;
-        if (page.language === locale && page.slug === slug && page.type === 'Category') {
-          categoryTitle = page.title || slug;
-          break;
+    } else if (pathname === '/category/[slug]') {
+      const slug = query.slug as string;
+      const locale = router.locale || localeConfig.defaultLocale;
+      
+      // Find the category page info by slug and locale
+      let categoryTitle = slug;
+      if (pageProps.siteMap?.pageInfoMap) {
+        for (const [pageInfo] of Object.entries(pageProps.siteMap.pageInfoMap)) {
+          const page = pageInfo as any;
+          if (page.language === locale && page.slug === slug && page.type === 'Category') {
+            categoryTitle = page.title || slug;
+            break;
+          }
         }
       }
+      
+      // Use translation with actual category title
+      pageTitle = t('seeCategoryList', { category: categoryTitle });
+      pageDescription = pageProps.site?.name || '';
+    } else if (pathname === '/tag/[tag]') {
+      const tag = query.tag as string;
+      
+      // Use translation for tag title
+      pageTitle = t('seeTagList', { tag: '#' + tag });
+      pageDescription = pageProps.site?.name || '';
+    } else if (pathname === '/all-tags') {
+      pageTitle = t('seeAllTagsList');
+      pageDescription = pageProps.site?.name || '';
     }
-    
-    // Use translation with actual category title
-    pageTitle = t('seeCategoryList', { category: categoryTitle });
-    pageDescription = pageProps.site?.name || '';
-  } else if (pathname === '/tag/[tag]') {
-    const tag = query.tag as string;
-    
-    // Use translation for tag title
-    pageTitle = t('seeTagList', { tag: '#' + tag });
-    pageDescription = pageProps.site?.name || '';
-  } else if (pathname === '/all-tags') {
-    pageTitle = t('seeAllTagsList');
-    pageDescription = pageProps.site?.name || '';
   }
 
   return (

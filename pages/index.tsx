@@ -46,7 +46,12 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
         site,
         siteMap,
         pageId: 'home', // Add pageId for TopNav to render
-        homeRecordMaps
+        homeRecordMaps,
+        meta: {
+          title: site.name,
+          description: site.description,
+          image: null
+        }
       },
       revalidate: site.isr?.revalidate ?? 60
     }

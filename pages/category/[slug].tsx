@@ -99,12 +99,15 @@ export const getStaticProps: GetStaticProps<CategoryPageProps, { slug: string }>
     }
 
     if (!categoryPageId || !categoryPageInfo) {
-    
       return {
         notFound: true,
         revalidate: site.isr?.revalidate ?? 60,
       }
     }
+
+    const title = categoryPageInfo.title || `${slug} - ${siteMap.site.name}`
+    const description = categoryPageInfo.description || `Posts in category ${slug}`
+    const image = categoryPageInfo.coverImage || null
 
     // Check if the page is private
     if (categoryPageInfo.public === false) {
@@ -115,6 +118,11 @@ export const getStaticProps: GetStaticProps<CategoryPageProps, { slug: string }>
           siteMap,
           pageId: categoryPageId,
           isPrivate: true,
+          meta: {
+            title,
+            description,
+            image
+          }
         },
         revalidate: site.isr?.revalidate ?? 60,
       }
@@ -126,6 +134,11 @@ export const getStaticProps: GetStaticProps<CategoryPageProps, { slug: string }>
         site: siteMap.site,
         siteMap,
         pageId: categoryPageId,
+        meta: {
+          title,
+          description,
+          image
+        }
       },
       revalidate: site.isr?.revalidate ?? 60,
     }
