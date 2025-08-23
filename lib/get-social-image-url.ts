@@ -10,7 +10,8 @@ import siteConfig from '../site.config';
 export function getSocialImageUrl(path: string): string {
   try {
     // Use absolute URL for social media compatibility
-    const domain = process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || siteConfig.domain || 'localhost:3000';
+    // Prioritize production domain over Vercel temporary URLs
+    const domain = siteConfig.domain || process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || 'localhost:3000';
     const protocol = 'https'; // Always use HTTPS for production
     
     // Ensure path starts with /
@@ -25,7 +26,7 @@ export function getSocialImageUrl(path: string): string {
   } catch (err) {
     console.error('[getSocialImageUrl] Error creating social image URL:', err);
     // Fallback to the root image URL if something goes wrong.
-    const domain = process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || siteConfig.domain || 'localhost:3000';
+    const domain = siteConfig.domain || process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || 'localhost:3000';
     const protocol = 'https';
     return `${protocol}://${domain}/api/generate-social-image?path=%2F`;
   }
