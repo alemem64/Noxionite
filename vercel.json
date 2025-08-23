@@ -13,14 +13,6 @@
       "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "1"
     }
   },
-  "functions": {
-    "lib/og-images-manager.ts": {
-      "maxDuration": 30
-    },
-    "pages/api/generate-social-image.ts": {
-      "maxDuration": 30
-    }
-  },
   "env": {
     "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "1"
   }
