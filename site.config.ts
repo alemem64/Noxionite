@@ -1,7 +1,9 @@
 import { siteConfig } from './lib/site-config.ts'
 import locale from './site.locale.json'
 
-export default siteConfig({
+export const domain = 'noxionite.vercel.app'
+
+const siteConfigObject = {
   // the site's root Notion page (required)
   rootNotionPageId: '251f2d475c3180d28fb1c28911fbbe75',
 
@@ -10,7 +12,7 @@ export default siteConfig({
 
   // basic site info (required)
   name: 'Noxionite',
-  domain: 'noxionite.vercel.app',
+  domain,
   author: 'Jaewan Shin',
 
   // open graph metadata (optional)
@@ -33,7 +35,7 @@ export default siteConfig({
         }
       }
     },
-  ],
+  ] as const,
 
   // author metadata (optional)
   authors: [
@@ -65,4 +67,6 @@ export default siteConfig({
   isr: {
     revalidate: 60 // revalidate time in seconds
   }
-})
+}
+
+export default siteConfig(siteConfigObject)

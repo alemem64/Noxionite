@@ -17,7 +17,7 @@ export interface SiteConfig {
   }
 
   // hero section (optional)
-  heroAssets?: Array<{
+  heroAssets?: ReadonlyArray<{
     type: 'image' | 'video'
     src: string
     url?: string
