@@ -12,8 +12,8 @@ export function getSocialImageUrl(path: string): string {
     const protocol = domain.includes('localhost') ? 'http' : 'https';
     
     // Always point to the on-demand generation API endpoint.
-    // The `.tsx` extension is important because the API route now uses JSX.
-    const apiUrl = `${protocol}://${domain}/api/generate-social-image.tsx?path=${encodeURIComponent(
+    // Use route without file extension to match Next.js API routing.
+    const apiUrl = `${protocol}://${domain}/api/generate-social-image?path=${encodeURIComponent(
       path
     )}`;
     return apiUrl;
@@ -22,7 +22,7 @@ export function getSocialImageUrl(path: string): string {
     // Fallback to the root image URL if something goes wrong.
     const domain = process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || 'localhost:3000';
     const protocol = domain.includes('localhost') ? 'http' : 'https';
-    return `${protocol}://${domain}/api/generate-social-image.tsx?path=%2F`;
+    return `${protocol}://${domain}/api/generate-social-image?path=%2F`;
   }
 }
 

@@ -1,4 +1,3 @@
-import { NextApiRequest} from 'next';
 import { ImageResponse } from '@vercel/og';
 import { SocialCard, SocialCardProps } from '@/components/SocialCard';
 import { parseUrlPathname } from '@/lib/context/url-parser';
@@ -10,7 +9,7 @@ export const config = {
   runtime: 'edge',
 };
 
-const handler = async (req: NextApiRequest) => {
+const handler = async (req: Request) => {
   try {
     const { searchParams } = new URL(req.url || '', 'http://localhost');
     const path = searchParams.get('path') || '/';

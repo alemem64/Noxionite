@@ -6,7 +6,7 @@ import React, { useState} from 'react'
 import styles from 'styles/components/PostHeader.module.css'
 
 import { mapImageUrl } from '@/lib/map-image-url'
-import { getSocialImageUrl } from '@/lib/get-social-image-url'
+// Removed getSocialImageUrl; build relative path for same-origin API
 import { AuthorButton } from './AuthorButton'
 import { TagButton } from './TagButton'
 
@@ -34,7 +34,7 @@ export function PostHeader({
 }: PostHeaderProps) {
   const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null)
 
-  const socialImageUrl = useOriginalCoverImage || !url ? null : getSocialImageUrl(url)
+  const socialImagePath = useOriginalCoverImage || !url ? null : `/api/generate-social-image?path=${encodeURIComponent(url)}`
 
   // For 'full' variant, we require it to be a blog post from a collection
   if (variant === 'full' && (!isBlogPost || !block || block.parent_table !== 'collection')) {
@@ -84,7 +84,7 @@ export function PostHeader({
   // Determine which image to use
   const effectiveCoverImageUrl = useOriginalCoverImage 
     ? coverImageUrl 
-    : socialImageUrl || coverImageUrl
+    : socialImagePath || coverImageUrl
 
   return (
     <div className={cs(styles.header, isMobile && styles.mobile)}>

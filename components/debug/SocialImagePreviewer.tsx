@@ -30,7 +30,7 @@ export function SocialImagePreviewer() {
     setError('')
 
     try {
-      const response = await fetch(`/api/generate-social-image.tsx?path=${encodeURIComponent(currentPath)}`);
+      const response = await fetch(`/api/generate-social-image?path=${encodeURIComponent(currentPath)}`);
       
       if (!response.ok) {
         // Handle JSON error responses

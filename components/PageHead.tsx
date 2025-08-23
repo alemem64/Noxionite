@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import { useState, useEffect } from 'react'
 
 import type * as types from '@/lib/context/types'
 import * as config from '@/lib/config'
@@ -17,18 +16,8 @@ export function PageHead({
   image?: string
   url?: string
 }) {
-  const [socialImageUrl, setSocialImageUrl] = useState(image)
-
-  useEffect(() => {
-    async function fetchSocialImageUrl() {
-      if (url) {
-        const imageUrl = await getSocialImageUrl(url)
-        setSocialImageUrl(imageUrl || image)
-      }
-    }
-
-    void fetchSocialImageUrl()
-  }, [url, image])
+  // Compute OG image at render time to ensure SSR crawlers see the tags
+  const socialImageUrl = image || (url ? getSocialImageUrl(url) : undefined)
 
   const rssFeedUrl = `${config.host}/feed`
 
