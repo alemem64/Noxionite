@@ -39,7 +39,7 @@ import localeConfig from '../site.locale.json'
 
 const SHOW_DEBUG_CONTROLS = false
 const SHOW_DEBUG_SOCIAL_IMAGE = false
-const SHOW_DEBUG_HEAD = false
+const SHOW_DEBUG_HEAD = true
 
 const notoKR = Noto_Sans_KR({
   subsets: ['latin'],
