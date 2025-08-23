@@ -108,7 +108,7 @@ export async function getBrowser(): Promise<any> {
         // Use @sparticuz/chromium's built-in configuration
         browser = await puppeteer.launch({
           args: chromium.args,
-          executablePath: await chromium.executablePath,
+          executablePath: await chromium.executablePath(),
           headless: chromium.headless,
           ignoreHTTPSErrors: true,
         });
