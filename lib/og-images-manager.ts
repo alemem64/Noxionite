@@ -105,7 +105,7 @@ export async function getBrowser(): Promise<any> {
       try {
         // Try the async method first
         executablePath = await chromiumInstance.executablePath?.();
-      } catch (error) {
+      } catch {
         console.log('[getBrowser] executablePath() failed, trying direct property');
         executablePath = chromiumInstance.executablePath;
       }

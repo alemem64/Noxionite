@@ -4,7 +4,7 @@
       "maxDuration": 30
     }
   },
-  "buildCommand": "node scripts/install-chromium.mjs && npm run build",
+  "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "framework": "nextjs",
