@@ -36,6 +36,7 @@ import { appWithTranslation, useTranslation } from 'next-i18next'
 import { getBlockTitle } from 'notion-utils'
 import { PageHead } from '@/components/PageHead'
 import localeConfig from '../site.locale.json'
+import siteConfig from '../site.config'
 
 const SHOW_DEBUG_CONTROLS = false
 const SHOW_DEBUG_SOCIAL_IMAGE = false
@@ -263,7 +264,8 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
         title={pageTitle}
         description={pageDescription}
         pageId={pageProps.pageId}
-        url={`/${router.locale}${router.asPath === '/' ? '' : router.asPath}`}
+        url={`https://${siteConfig.domain}${router.asPath === '/' ? '' : router.asPath}`}
+        image={notionImageUrl}
       />
       {SHOW_DEBUG_CONTROLS && <GraphController />}
       {SHOW_DEBUG_SOCIAL_IMAGE && <SocialImagePreviewer />}

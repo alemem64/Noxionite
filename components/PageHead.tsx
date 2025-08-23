@@ -17,7 +17,7 @@ export function PageHead({
   url?: string
 }) {
   // Compute OG image at render time to ensure SSR crawlers see the tags
-  const socialImageUrl = image || (url ? getSocialImageUrl(url) : undefined)
+  const socialImageUrl = image || (url ? getSocialImageUrl(url) : `${config.host}/social-images/root.jpg`)
 
   const rssFeedUrl = `${config.host}/feed`
 
@@ -71,7 +71,12 @@ export function PageHead({
         <>
           <meta name='twitter:card' content='summary_large_image' />
           <meta name='twitter:image' content={socialImageUrl} />
+          <meta name='twitter:image:alt' content={title || site?.name || 'Social image'} />
           <meta property='og:image' content={socialImageUrl} />
+          <meta property='og:image:width' content='1200' />
+          <meta property='og:image:height' content='630' />
+          <meta property='og:image:alt' content={title || site?.name || 'Social image'} />
+          <meta property='og:image:type' content='image/png' />
         </>
       ) : (
         <meta name='twitter:card' content='summary' />
@@ -95,6 +100,18 @@ export function PageHead({
       <meta property='og:title' content={title} />
       <meta name='twitter:title' content={title} />
       <title>{title}</title>
+      
+      <meta property='og:site_name' content={site?.name || 'Noxionite'} />
+      <meta property='og:locale' content='ko_KR' />
+      <meta property='og:locale:alternate' content='en_US' />
+      
+      <link rel='icon' href='/favicon.ico' />
+      <link rel='apple-touch-icon' sizes='180x180' href='/apple-touch-icon.png' />
+      <link rel='icon' type='image/png' sizes='32x32' href='/favicon-32x32.png' />
+      <link rel='icon' type='image/png' sizes='16x16' href='/favicon-16x16.png' />
+      <link rel='manifest' href='/site.webmanifest' />
+      <meta name='msapplication-TileColor' content='#2d3439' />
+      <meta name='theme-color' content='#fefffe' />
     </Head>
   )
 }
