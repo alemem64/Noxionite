@@ -168,21 +168,15 @@ async function main() {
   }));
 
   
-  // Skip social image generation in Vercel environment due to resource limitations
-  if (process.env.VERCEL) {
-    console.log('🚫 Skipping social image generation in Vercel environment');
-    console.log('💡 Images will be generated on-demand via API routes');
-    return;
-  }
-
-  // Start local server for serving public assets during build
+  // Always use local server for social image generation during build
+  // This works in both local and Vercel environments
   let baseUrl;
   let server;
   
   const buildServer = await createBuildServer();
   server = buildServer.server;
   baseUrl = buildServer.baseUrl;
-  console.log(`🖥️  Using local server: ${baseUrl}`);
+  console.log(`🖥️  Using local build server: ${baseUrl}`);
 
   try {
     console.log('🚀 Starting batch image generation...');

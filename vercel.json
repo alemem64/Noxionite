@@ -1,0 +1,17 @@
+{
+  "functions": {
+    "pages/api/generate-social-image.ts": {
+      "maxDuration": 30
+    }
+  },
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "build": {
+    "env": {
+      "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "1"
+    }
+  },
+  "installCommand": "npm install"
+}

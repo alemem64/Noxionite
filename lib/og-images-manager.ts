@@ -65,7 +65,8 @@ export async function getBrowser(): Promise<any> {
   await loadServerModules()
 
   const isProductionServerless = (process.env.VERCEL === '1' || process.env.NETLIFY === 'true') || 
-                                process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined;
+                                process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined ||
+                                process.env.NODE_ENV === 'production';
 
   let puppeteer: any;
   let chromium: any;
