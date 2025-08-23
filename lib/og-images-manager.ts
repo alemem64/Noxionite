@@ -71,10 +71,13 @@ export async function getBrowser(): Promise<any> {
   let chromium: any;
 
   if (isProductionServerless) {
-    console.log('[getBrowser] Loading modules for serverless environment');
+    console.log('[getBrowser] Loading @sparticuz/chromium for serverless environment');
     try {
-      // Import @sparticuz/chromium correctly for serverless
-      chromium = await import('@sparticuz/chromium');
+      // Import @sparticuz/chromium for serverless environments
+      const chromiumModule = await import('@sparticuz/chromium');
+      chromium = chromiumModule.default || chromiumModule;
+      
+      // Import puppeteer-core
       const puppeteerCore = await import('puppeteer-core');
       puppeteer = puppeteerCore.default || puppeteerCore;
     } catch (err) {
@@ -97,13 +100,18 @@ export async function getBrowser(): Promise<any> {
 
     let browser;
     if (isProductionServerless && chromium) {
-      console.log('[getBrowser] Using @sparticuz/chromium for serverless environment.');
+      console.log('[getBrowser] Using @sparticuz/chromium for Vercel serverless');
       
       try {
-        console.log('[getBrowser] Attempting to launch browser with @sparticuz/chromium...');
+        console.log('[getBrowser] Initializing @sparticuz/chromium...');
         
         // Use @sparticuz/chromium's built-in configuration
-        browser = await puppeteer.launch(chromium.puppeteerArgs);
+        browser = await puppeteer.launch({
+          args: chromium.args,
+          executablePath: await chromium.executablePath,
+          headless: chromium.headless,
+          ignoreHTTPSErrors: true,
+        });
         console.log('[getBrowser] Browser launched successfully with @sparticuz/chromium');
       } catch (err) {
         console.error('[getBrowser] Failed to launch browser with @sparticuz/chromium:', err);

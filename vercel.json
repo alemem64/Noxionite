@@ -10,8 +10,18 @@
   "framework": "nextjs",
   "build": {
     "env": {
-      "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "1",
-      "LD_LIBRARY_PATH": "/tmp/node_modules/@sparticuz/chromium/lib"
+      "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "1"
     }
+  },
+  "functions": {
+    "lib/og-images-manager.ts": {
+      "maxDuration": 30
+    },
+    "pages/api/generate-social-image.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "1"
   }
 }
