@@ -16,7 +16,7 @@
     "dev": "next dev -H 0.0.0.0",
     "prebuild": "node scripts/generate-language-files.mjs",
     "build": "next build",
-    "postbuild": "tsx scripts/generate-social-images.mjs",
+    "postbuild": "[ -z \"$VERCEL\" ] && tsx scripts/generate-social-images.mjs || echo 'Skipping social images generation in Vercel'",
     "start": "next start -H 0.0.0.0",
     "deploy": "vercel deploy",
     "deps:upgrade": "[ -z $GITHUB_ACTIONS ] && pnpm up -L notion-client notion-types notion-utils react-notion-x || echo 'Skipping deps:update on CI'",

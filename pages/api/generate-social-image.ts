@@ -23,9 +23,14 @@ async function handler(
     const host = _req.headers.host || 'localhost:3000'
     const isDev = process.env.NODE_ENV === 'development' || host.includes('localhost')
     const baseUrl = isDev ? `http://${host}` : `https://${siteConfig.domain}`
-
+    
     const urlParam = typeof _req.query.url === 'string' ? _req.query.url : 
                      typeof _req.query.path === 'string' ? _req.query.path : '/'
+    
+    // Log for debugging in Vercel
+    if (process.env.VERCEL) {
+      console.log(`[SocialImage API] Vercel environment - generating image for: ${urlParam}`)
+    }
     
 
     

@@ -57,8 +57,14 @@ export async function getSocialImageUrl(
       return rootImagePath;
     }
     
+    // In Vercel environment, always use the API endpoint for on-demand generation
+    // This ensures missing images are generated at runtime
+    if (process.env.VERCEL) {
+      const apiUrl = `/api/generate-social-image?path=${encodeURIComponent(url)}`;
+      return apiUrl;
+    }
+    
     // Return the specific image path for regular pages
-  
     return specificImagePath;
   } catch (err) {
     console.error('[getSocialImageUrl] Error:', err);

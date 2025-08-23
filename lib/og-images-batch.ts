@@ -29,6 +29,12 @@ export async function generateSocialImagesBatch(
 
   const baseUrl = customBaseUrl || 
     (process.env.VERCEL ? `https://${process.env.NEXT_PUBLIC_DOMAIN || 'localhost:3000'}` : 'http://localhost:3000');
+    
+  // Skip generation entirely in Vercel environment
+  if (process.env.VERCEL) {
+    console.log('Skipping batch image generation in Vercel environment');
+    return { success: 0, failed: 0, errors: [] };
+  }
 
   const browser = await getBrowser();
   const errors: Array<{ url: string; error: string }> = [];

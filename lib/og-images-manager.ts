@@ -100,11 +100,16 @@ export async function getBrowser(): Promise<any> {
   }
 
   try {
-    // Check environment - skip Chromium for local development
-    const isProductionServerless = (process.env.VERCEL === '1' || process.env.NETLIFY === 'true') && 
+      // Check environment - skip Chromium for local development and Vercel
+      const isProductionServerless = (process.env.VERCEL === '1' || process.env.NETLIFY === 'true') && 
                                   process.env.NODE_ENV === 'production';
     
-    if (isProductionServerless && chromium) {
+      // In Vercel, skip browser launch entirely since we're using pre-generated images
+      if (process.env.VERCEL) {
+        throw new Error('Browser not available in Vercel - using pre-generated images');
+      }
+    
+      if (isProductionServerless && chromium) {
 
       const executablePath = await chromium.executablePath()
       browserPromise = puppeteer.launch({
@@ -490,6 +495,12 @@ export class SocialImageManager {
   }
 
   async syncSocialImages(siteMap: SiteMap, tagGraph: any) {
+    // Skip social images sync in Vercel environment
+    if (process.env.VERCEL) {
+      console.log('🔄 Skipping social images sync in Vercel environment');
+      return;
+    }
+    
     console.log('🔄 Starting social images sync...');
     console.log(`📊 SiteMap: ${Object.keys(siteMap.pageInfoMap || {}).length} pages`);
     console.log(`📊 TagGraph: ${Object.keys(tagGraph?.locales || {}).length} locales`);

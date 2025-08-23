@@ -8,6 +8,13 @@ import http from 'node:http';
 import handler from 'serve-handler';
 
 async function main() {
+  // Skip social image generation in Vercel environment
+  if (process.env.VERCEL) {
+    console.log('🚀 Vercel environment detected - skipping social images generation');
+    console.log('📁 Using pre-generated images from /public/social-images');
+    return;
+  }
+
   console.log('🚀 Starting social images generation...');
   const startTime = Date.now();
   
