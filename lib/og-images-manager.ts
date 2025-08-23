@@ -73,8 +73,8 @@ export async function getBrowser(): Promise<any> {
   if (isProductionServerless) {
     console.log('[getBrowser] Loading modules for serverless environment');
     try {
-      const chromiumModule = await import('@sparticuz/chromium');
-      chromium = chromiumModule.default || chromiumModule;
+      // Import @sparticuz/chromium correctly for serverless
+      chromium = await import('@sparticuz/chromium');
       const puppeteerCore = await import('puppeteer-core');
       puppeteer = puppeteerCore.default || puppeteerCore;
     } catch (err) {
@@ -98,88 +98,16 @@ export async function getBrowser(): Promise<any> {
     let browser;
     if (isProductionServerless && chromium) {
       console.log('[getBrowser] Using @sparticuz/chromium for serverless environment.');
-      const chromiumInstance = chromium.default || chromium;
-      
-      // Try multiple approaches to get executable path
-      let executablePath;
-      try {
-        // Try the async method first
-        executablePath = await chromiumInstance.executablePath?.();
-      } catch {
-        console.log('[getBrowser] executablePath() failed, trying direct property');
-        executablePath = chromiumInstance.executablePath;
-      }
-      
-      // Fallback to environment variable or system chromium
-      if (!executablePath) {
-        executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser';
-      }
-      
-      console.log(`[getBrowser] Using executable path: ${executablePath}`);
-      
-      // Check if executable exists
-      try {
-        await fs.access(executablePath);
-        console.log('[getBrowser] Chromium executable found');
-      } catch {
-        console.log('[getBrowser] Chromium executable not found, using fallback');
-        executablePath = '/usr/bin/chromium-browser';
-      }
-      
-      const launchArgs = [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--single-process',
-        '--disable-gpu',
-        '--no-zygote',
-        '--disable-web-security',
-        '--disable-features=VizDisplayCompositor',
-        '--no-first-run',
-        '--disable-default-apps',
-        '--disable-extensions',
-        '--disable-plugins',
-        '--disable-background-timer-throttling',
-        '--disable-backgrounding-occluded-windows',
-        '--disable-renderer-backgrounding'
-      ];
-      
-      const env = {
-        ...process.env,
-        LD_LIBRARY_PATH: `/var/task/lib:${process.env.LD_LIBRARY_PATH || ''}`,
-        FONTCONFIG_PATH: '/var/task/fonts',
-        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true',
-        PUPPETEER_EXECUTABLE_PATH: executablePath,
-      };
-      
-      const launchConfig = {
-        args: launchArgs,
-        executablePath,
-        headless: true,
-        ignoreHTTPSErrors: true,
-        env,
-      };
       
       try {
-        console.log('[getBrowser] Attempting to launch browser...');
-        browser = await puppeteer.launch(launchConfig);
-        console.log('[getBrowser] Browser launched successfully');
-      } catch (err) {
-        console.error('[getBrowser] Failed to launch browser:', err);
+        console.log('[getBrowser] Attempting to launch browser with @sparticuz/chromium...');
         
-        // Try with minimal configuration
-        try {
-          console.log('[getBrowser] Trying minimal configuration...');
-          const minimalArgs = ['--no-sandbox', '--single-process', '--disable-dev-shm-usage'];
-          browser = await puppeteer.launch({
-            ...launchConfig,
-            args: minimalArgs,
-          });
-          console.log('[getBrowser] Browser launched with minimal config');
-        } catch (fallbackErr) {
-          console.error('[getBrowser] All launch attempts failed:', fallbackErr);
-          throw fallbackErr;
-        }
+        // Use @sparticuz/chromium's built-in configuration
+        browser = await puppeteer.launch(chromium.puppeteerArgs);
+        console.log('[getBrowser] Browser launched successfully with @sparticuz/chromium');
+      } catch (err) {
+        console.error('[getBrowser] Failed to launch browser with @sparticuz/chromium:', err);
+        throw err;
       }
     } else {
       console.log('[getBrowser] Using local puppeteer-bundled browser.');

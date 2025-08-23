@@ -11,7 +11,7 @@
   "build": {
     "env": {
       "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "1",
-      "PUPPETEER_EXECUTABLE_PATH": "/usr/bin/chromium-browser"
+      "LD_LIBRARY_PATH": "/tmp/node_modules/@sparticuz/chromium/lib"
     }
   }
 }
