@@ -168,20 +168,21 @@ async function main() {
   }));
 
   
+  // Skip social image generation in Vercel environment due to resource limitations
+  if (process.env.VERCEL) {
+    console.log('🚫 Skipping social image generation in Vercel environment');
+    console.log('💡 Images will be generated on-demand via API routes');
+    return;
+  }
+
   // Start local server for serving public assets during build
   let baseUrl;
   let server;
   
-  if (process.env.VERCEL) {
-    // For Vercel deployment, use the actual domain
-    baseUrl = 'https://noxionite.vercel.app';
-    console.log(`🌐 Using Vercel domain: ${baseUrl}`);
-  } else {
-    const buildServer = await createBuildServer();
-    server = buildServer.server;
-    baseUrl = buildServer.baseUrl;
-    console.log(`🖥️  Using local server: ${baseUrl}`);
-  }
+  const buildServer = await createBuildServer();
+  server = buildServer.server;
+  baseUrl = buildServer.baseUrl;
+  console.log(`🖥️  Using local server: ${baseUrl}`);
 
   try {
     console.log('🚀 Starting batch image generation...');
@@ -198,7 +199,6 @@ async function main() {
     if (server) {
       console.log('🔌 Closing local server...');
       server.close();
-    
     }
   }
 }
