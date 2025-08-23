@@ -7,16 +7,22 @@
  */
 export function getSocialImageUrl(path: string): string {
   try {
+    // Use absolute URL for social media compatibility
+    const domain = process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || 'localhost:3000';
+    const protocol = domain.includes('localhost') ? 'http' : 'https';
+    
     // Always point to the on-demand generation API endpoint.
     // The `.tsx` extension is important because the API route now uses JSX.
-    const apiUrl = `/api/generate-social-image.tsx?path=${encodeURIComponent(
+    const apiUrl = `${protocol}://${domain}/api/generate-social-image.tsx?path=${encodeURIComponent(
       path
     )}`;
     return apiUrl;
   } catch (err) {
     console.error('[getSocialImageUrl] Error creating social image URL:', err);
     // Fallback to the root image URL if something goes wrong.
-    return `/api/generate-social-image.tsx?path=%2F`;
+    const domain = process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || 'localhost:3000';
+    const protocol = domain.includes('localhost') ? 'http' : 'https';
+    return `${protocol}://${domain}/api/generate-social-image.tsx?path=%2F`;
   }
 }
 

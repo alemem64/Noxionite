@@ -14,8 +14,10 @@ const handler = async (req: NextApiRequest) => {
   try {
     const { searchParams } = new URL(req.url || '', 'http://localhost');
     const path = searchParams.get('path') || '/';
+    
     const parsed = parseUrlPathname(path);
     const siteMap = await getCachedSiteMap();
+    
     const siteName = siteConfig.name;
 
     const fontData = await interSemiBold;
@@ -27,31 +29,58 @@ const handler = async (req: NextApiRequest) => {
 
     switch (parsed.segment) {
       case 'post': {
-        const pageInfo = Object.values(siteMap.pageInfoMap).find(p => p.slug === parsed.slug);
-        if (!pageInfo) throw new Error('Post not found');
+        let pageInfo = Object.values(siteMap.pageInfoMap).find(p => p.slug === parsed.slug);
+        
+        // If not found, try to find by checking if the slug might be different
+        if (!pageInfo && parsed.slug) {
+          // Try to find by title or other matching methods
+          pageInfo = Object.values(siteMap.pageInfoMap).find(p => 
+            p.slug === parsed.slug || 
+            p.title?.toLowerCase().replace(/\s+/g, '-') === parsed.slug.toLowerCase() ||
+            p.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-') === parsed.slug.toLowerCase()
+          );
+        }
+        
+        if (!pageInfo) {
+          props = {
+            type: 'root',
+            title: siteName,
+            backgroundImage: defaultBg,
+            iconUrl,
+          };
+        } else {
+          const author = siteConfig.authors?.find(a => pageInfo.authors?.includes(a.name));
+          const authorInfo = author ? { name: author.name, avatarUrl: new URL(author.avatar_dir, `https://${siteConfig.domain}`).toString() } : undefined;
 
-        const author = siteConfig.authors?.find(a => pageInfo.authors?.includes(a.name));
-        const authorInfo = author ? { name: author.name, avatarUrl: new URL(author.avatar_dir, `https://${siteConfig.domain}`).toString() } : undefined;
-
-        props = {
-          type: 'post',
-          title: pageInfo.title,
-          author: authorInfo,
-          tags: pageInfo.tags,
-          date: pageInfo.date ? new Date(pageInfo.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : undefined,
-          breadcrumb: [siteName, 'Post'],
-          backgroundImage: pageInfo.coverImage || defaultBg,
-        };
+          props = {
+            type: 'post',
+            title: pageInfo.title,
+            author: authorInfo,
+            tags: pageInfo.tags,
+            date: pageInfo.date ? new Date(pageInfo.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : undefined,
+            breadcrumb: [siteName, 'Post'],
+            backgroundImage: pageInfo.coverImage || defaultBg,
+          };
+        }
         break;
       }
       case 'category': {
         const pageInfo = Object.values(siteMap.pageInfoMap).find(p => p.slug === parsed.slug && p.type === 'Category');
-        props = {
-          type: 'category',
-          title: pageInfo?.title || 'Category',
-          backgroundImage: pageInfo?.coverImage || defaultBg,
-          iconUrl,
-        };
+        if (!pageInfo) {
+          props = {
+            type: 'root',
+            title: siteName,
+            backgroundImage: defaultBg,
+            iconUrl,
+          };
+        } else {
+          props = {
+            type: 'category',
+            title: pageInfo.title,
+            backgroundImage: pageInfo.coverImage || defaultBg,
+            iconUrl,
+          };
+        }
         break;
       }
       case 'tag':
