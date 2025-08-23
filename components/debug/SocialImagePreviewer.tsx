@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { useRouter } from 'next/router'
 import Image from 'next/image';
-import { SocialCard } from '../SocialCard'
 
 // Debounce function to limit API calls
 function debounce<F extends (...args: any[]) => any>(func: F, waitFor: number) {
@@ -31,7 +30,7 @@ export function SocialImagePreviewer() {
     setError('')
 
     try {
-      const response = await fetch(`/api/generate-social-image?url=${encodeURIComponent(currentPath)}`);
+      const response = await fetch(`/api/generate-social-image.tsx?path=${encodeURIComponent(currentPath)}`);
       
       if (!response.ok) {
         // Handle JSON error responses
@@ -143,17 +142,6 @@ export function SocialImagePreviewer() {
           >
             {loading ? 'Refreshing...' : 'Refresh'}
           </button>
-        </div>
-
-        {/* Live HTML Preview */}
-        <div style={{ marginBottom: '30px' }}>
-          <h3 style={{ textAlign: 'center', marginBottom: '10px', fontWeight: 'bold' }}>Live HTML Preview (Full Size)</h3>
-          <div style={{ width: '1200px', height: '630px', margin: '0 auto', border: '1px dashed #555' }}>
-            <SocialCard
-              url={path}
-              baseUrl={typeof window !== 'undefined' ? window.location.origin : ''}
-            />
-          </div>
         </div>
 
         {/* Rendered Image Preview */}

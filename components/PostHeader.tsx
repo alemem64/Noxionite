@@ -2,10 +2,9 @@ import cs from 'classnames'
 import Image from 'next/image'
 import { type PageBlock } from 'notion-types'
 import { formatDate, getBlockTitle, getPageProperty } from 'notion-utils'
-import React, { useState, useEffect } from 'react'
+import React, { useState} from 'react'
 import styles from 'styles/components/PostHeader.module.css'
 
-import { getSocialImageUrl } from '@/lib/get-social-image-url'
 import { mapImageUrl } from '@/lib/map-image-url'
 import { AuthorButton } from './AuthorButton'
 import { TagButton } from './TagButton'
@@ -25,7 +24,6 @@ interface PostHeaderProps {
 export function PostHeader({ 
   block, 
   recordMap, 
-  siteMap,
   isBlogPost,
   isMobile = false,
   variant = 'full', // Default to 'full'
@@ -34,44 +32,8 @@ export function PostHeader({
   hideCoverImage = false
 }: PostHeaderProps) {
   const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null)
-  const [socialImageUrl, setSocialImageUrl] = useState<string | null>(null)
-  const [isLoadingSocialImage, setIsLoadingSocialImage] = useState(false)
 
-  // Fetch social image when useOriginalCoverImage is false
-  useEffect(() => {
-    if (!useOriginalCoverImage && url) {
-      setIsLoadingSocialImage(true)
-      
-      const fetchPromise = siteMap ? getSocialImageUrl(url) : getSocialImageUrl(url)
-      fetchPromise
-        .then(imageUrl => {
-          setSocialImageUrl(imageUrl)
-        })
-        .catch(err => {
-          console.error('[PostHeader] Failed to fetch social image:', err)
-          setSocialImageUrl(null)
-        })
-        .finally(() => {
-          setIsLoadingSocialImage(false)
-        })
-    } else if (!useOriginalCoverImage && !url && block?.id) {
-      // Fallback to old behavior if URL is not provided
-      setIsLoadingSocialImage(true)
-      
-      const fetchPromise = siteMap ? getSocialImageUrl(block.id) : getSocialImageUrl(block.id)
-      fetchPromise
-        .then(imageUrl => {
-          setSocialImageUrl(imageUrl)
-        })
-        .catch(err => {
-          console.error('[PostHeader] Failed to fetch social image (fallback):', err)
-          setSocialImageUrl(null)
-        })
-        .finally(() => {
-          setIsLoadingSocialImage(false)
-        })
-    }
-  }, [useOriginalCoverImage, url, block?.id, siteMap, block])
+  const socialImageUrl = useOriginalCoverImage || !url ? null : `/api/generate-social-image.tsx?path=${encodeURIComponent(url)}`
 
   // For 'full' variant, we require it to be a blog post from a collection
   if (variant === 'full' && (!isBlogPost || !block || block.parent_table !== 'collection')) {
@@ -196,14 +158,7 @@ export function PostHeader({
         </div>
       )}
       
-      {/* Loading state for social image */}
-      {!hideCoverImage && !useOriginalCoverImage && isLoadingSocialImage && (
-        <div className={styles.coverImageContainer} style={{ height: '400px', opacity: 0.5 }}>
-          <div className={styles.loadingPlaceholder}>
-            Loading social image...
-          </div>
-        </div>
-      )}
+
     </div>
   )
 }

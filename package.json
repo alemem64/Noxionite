@@ -16,7 +16,6 @@
     "dev": "next dev -H 0.0.0.0",
     "prebuild": "node scripts/generate-language-files.mjs",
     "build": "next build",
-    "postbuild": "[ -z \"$VERCEL\" ] && tsx scripts/generate-social-images.mjs || echo 'Skipping social images generation in Vercel'",
     "start": "next start -H 0.0.0.0",
     "deploy": "vercel deploy",
     "deps:upgrade": "[ -z $GITHUB_ACTIONS ] && pnpm up -L notion-client notion-types notion-utils react-notion-x || echo 'Skipping deps:update on CI'",
@@ -38,10 +37,8 @@
     "@keyvhq/core": "^1.6.9",
     "@keyvhq/redis": "^1.6.10",
     "@react-icons/all-files": "^4.1.0",
-
-    "@sparticuz/chromium": "^123.0.1",
     "@types/react-transition-group": "^4.4.12",
-    "chrome-aws-lambda": "^10.1.0",
+    "@vercel/og": "^0.6.2",
     
     "classnames": "^2.5.1",
     "expiry-map": "^2.0.0",
@@ -88,7 +85,6 @@
     "eslint": "^9.28.0",
     "npm-run-all2": "^8.0.4",
     "prettier": "^3.5.3",
-    "puppeteer": "^24.16.0",
     "serve-handler": "^6.1.6",
     "tsx": "^4.16.2",
     "typescript": "^5.8.3"

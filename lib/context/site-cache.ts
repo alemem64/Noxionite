@@ -15,17 +15,7 @@ async function fetchAndCacheSiteMap(): Promise<SiteMap> {
   lastUpdated = Date.now()
 
   
-  // Trigger social image sync after site map update (server-side only)
-  if (typeof window === 'undefined') {
-    void (async () => {
-      try {
-        const { syncSocialImagesWithSiteMap } = await import('../og-images-manager')
-        await syncSocialImagesWithSiteMap(newSiteMap)
-      } catch (err) {
-        console.error('Failed to sync social images:', err)
-      }
-    })()
-  }
+
   
   return newSiteMap
 }
