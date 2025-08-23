@@ -65,8 +65,7 @@ export async function getBrowser(): Promise<any> {
   await loadServerModules()
 
   const isProductionServerless = (process.env.VERCEL === '1' || process.env.NETLIFY === 'true') || 
-                                process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined ||
-                                process.env.NODE_ENV === 'production';
+                                process.env.AWS_LAMBDA_FUNCTION_NAME !== undefined;
 
   let puppeteer: any;
   let chromium: any;
@@ -99,16 +98,52 @@ export async function getBrowser(): Promise<any> {
     let browser;
     if (isProductionServerless && chromium) {
       console.log('[getBrowser] Using @sparticuz/chromium for serverless environment.');
-      // ... (keep the serverless launch logic as is)
       const chromiumInstance = chromium.default || chromium;
-      let executablePath = await chromiumInstance.executablePath;
-      if (!executablePath) {
-        executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+      
+      // Try multiple approaches to get executable path
+      let executablePath;
+      try {
+        // Try the async method first
+        executablePath = await chromiumInstance.executablePath?.();
+      } catch (error) {
+        console.log('[getBrowser] executablePath() failed, trying direct property');
+        executablePath = chromiumInstance.executablePath;
       }
+      
+      // Fallback to environment variable or system chromium
       if (!executablePath) {
-        throw new Error('Could not determine Chromium executable path');
+        executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser';
       }
-      const launchArgs = [...chromiumInstance.args, '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--single-process'];
+      
+      console.log(`[getBrowser] Using executable path: ${executablePath}`);
+      
+      // Check if executable exists
+      try {
+        await fs.access(executablePath);
+        console.log('[getBrowser] Chromium executable found');
+      } catch {
+        console.log('[getBrowser] Chromium executable not found, using fallback');
+        executablePath = '/usr/bin/chromium-browser';
+      }
+      
+      const launchArgs = [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--single-process',
+        '--disable-gpu',
+        '--no-zygote',
+        '--disable-web-security',
+        '--disable-features=VizDisplayCompositor',
+        '--no-first-run',
+        '--disable-default-apps',
+        '--disable-extensions',
+        '--disable-plugins',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding'
+      ];
+      
       const env = {
         ...process.env,
         LD_LIBRARY_PATH: `/var/task/lib:${process.env.LD_LIBRARY_PATH || ''}`,
@@ -116,23 +151,34 @@ export async function getBrowser(): Promise<any> {
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true',
         PUPPETEER_EXECUTABLE_PATH: executablePath,
       };
+      
       const launchConfig = {
         args: launchArgs,
         executablePath,
-        headless: chromiumInstance.headless,
+        headless: true,
         ignoreHTTPSErrors: true,
         env,
       };
+      
       try {
+        console.log('[getBrowser] Attempting to launch browser...');
         browser = await puppeteer.launch(launchConfig);
+        console.log('[getBrowser] Browser launched successfully');
       } catch (err) {
-        if ((err as Error).message.includes('libnss3.so')) {
-          const minimalArgs = ['--no-sandbox', '--single-process', '--disable-dev-shm-usage', '--disable-gpu', '--disable-web-security', '--no-first-run', '--disable-features=VizDisplayCompositor'];
-          launchConfig.args = minimalArgs;
-          launchConfig.headless = true;
-          browser = await puppeteer.launch(launchConfig);
-        } else {
-          throw err;
+        console.error('[getBrowser] Failed to launch browser:', err);
+        
+        // Try with minimal configuration
+        try {
+          console.log('[getBrowser] Trying minimal configuration...');
+          const minimalArgs = ['--no-sandbox', '--single-process', '--disable-dev-shm-usage'];
+          browser = await puppeteer.launch({
+            ...launchConfig,
+            args: minimalArgs,
+          });
+          console.log('[getBrowser] Browser launched with minimal config');
+        } catch (fallbackErr) {
+          console.error('[getBrowser] All launch attempts failed:', fallbackErr);
+          throw fallbackErr;
         }
       }
     } else {

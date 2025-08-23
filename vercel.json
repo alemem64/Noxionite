@@ -4,14 +4,14 @@
       "maxDuration": 30
     }
   },
-  "buildCommand": "npm run build",
+  "buildCommand": "node scripts/install-chromium.mjs && npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "framework": "nextjs",
   "build": {
     "env": {
-      "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "1"
+      "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "1",
+      "PUPPETEER_EXECUTABLE_PATH": "/usr/bin/chromium-browser"
     }
-  },
-  "installCommand": "npm install"
+  }
 }
