@@ -5,6 +5,13 @@ import type * as types from '@/lib/context/types'
 import * as config from '@/lib/config'
 import { getSocialImageUrl } from '@/lib/get-social-image-url'
 
+// Helper function to create absolute URLs
+function createAbsoluteUrl(path: string): string {
+  if (!path) return ''
+  if (path.startsWith('http')) return path
+  return `${config.host}${path.startsWith('/') ? path : `/${path}`}`
+}
+
 export function PageHead({
   site,
   title,
@@ -34,6 +41,10 @@ export function PageHead({
 
   title = title ?? site?.name
   description = description ?? site?.description
+
+  // Ensure URL is absolute
+  const absoluteUrl = url ? createAbsoluteUrl(url) : config.host
+  const absoluteSocialImageUrl = socialImageUrl ? createAbsoluteUrl(socialImageUrl) : undefined
 
   return (
     <Head>
@@ -85,8 +96,8 @@ export function PageHead({
       {socialImageUrl ? (
         <>
           <meta name='twitter:card' content='summary_large_image' />
-          <meta name='twitter:image' content={socialImageUrl} />
-          <meta property='og:image' content={socialImageUrl} />
+          <meta name='twitter:image' content={absoluteSocialImageUrl} />
+          <meta property='og:image' content={absoluteSocialImageUrl} />
         </>
       ) : (
         <meta name='twitter:card' content='summary' />
@@ -94,9 +105,9 @@ export function PageHead({
 
       {url && (
         <>
-          <link rel='canonical' href={url} />
-          <meta property='og:url' content={url} />
-          <meta property='twitter:url' content={url} />
+          <link rel='canonical' href={absoluteUrl} />
+          <meta property='og:url' content={absoluteUrl} />
+          <meta property='twitter:url' content={absoluteUrl} />
         </>
       )}
 

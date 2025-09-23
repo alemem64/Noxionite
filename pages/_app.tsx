@@ -260,7 +260,7 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
         title={pageTitle}
         description={pageDescription}
         pageId={pageProps.pageId}
-        url={`/${router.locale}${router.asPath === '/' ? '' : router.asPath}`}
+        url={router.asPath}
       />
       {SHOW_DEBUG_CONTROLS && <GraphController />}
       {SHOW_DEBUG_SOCIAL_IMAGE && <SocialImagePreviewer />}
