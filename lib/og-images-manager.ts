@@ -176,6 +176,20 @@ export async function getBrowser(): Promise<any> {
   }
 }
 
+export async function closeBrowser(): Promise<void> {
+  try {
+    const browser =
+      cachedBrowser || (browserPromise ? await browserPromise : null)
+
+    if (browser?.isConnected?.()) {
+      await browser.close()
+    }
+  } finally {
+    cachedBrowser = null
+    browserPromise = null
+  }
+}
+
 // Internal core rendering function
 export async function renderSocialImage(
   browser: any,
