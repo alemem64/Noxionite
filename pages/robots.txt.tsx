@@ -18,10 +18,13 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   res.setHeader('Cache-Control', 'public, max-age=86400, immutable')
   res.setHeader('Content-Type', 'text/plain')
 
-  // only allow the site to be crawlable on the production deployment
+  const isProductionDeployment =
+    process.env.VERCEL_ENV === 'production' ||
+    (!process.env.VERCEL_ENV && process.env.NODE_ENV === 'production')
+
   if (req.method === 'HEAD') {
     res.end()
-  } else if (process.env.VERCEL_ENV === 'production') {
+  } else if (isProductionDeployment) {
     res.write(`User-agent: *
 Allow: /
 Disallow: /api/get-tweet-ast/*
