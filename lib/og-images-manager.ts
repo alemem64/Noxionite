@@ -242,8 +242,8 @@ export async function renderSocialImage(
 }
 
 async function waitForRenderableAssets(page: any): Promise<void> {
-  await page.evaluate(async () => {
-    const timeout = new Promise<void>((resolve) => {
+  await page.evaluate(`(async () => {
+    const timeout = new Promise((resolve) => {
       setTimeout(resolve, 3000)
     })
 
@@ -252,7 +252,7 @@ async function waitForRenderableAssets(page: any): Promise<void> {
 
     const imagePromises = Array.from(document.images).map(
       (image) =>
-        new Promise<void>((resolve) => {
+        new Promise((resolve) => {
           if (image.complete) {
             resolve()
             return
@@ -265,7 +265,7 @@ async function waitForRenderableAssets(page: any): Promise<void> {
     )
 
     await Promise.race([Promise.all([fontsReady, ...imagePromises]), timeout])
-  })
+  })()`)
 }
 
 // Exported function for file system generation (ISR/build-time)
