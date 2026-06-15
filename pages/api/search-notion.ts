@@ -16,7 +16,8 @@ const buildBreadcrumbFromSiteMap = (
   let currentPageId: string | undefined = pageId
 
   while (currentPageId) {
-    const pageInfo: types.PageInfo | undefined = siteMap.pageInfoMap[currentPageId]
+    const pageInfo: types.PageInfo | undefined =
+      siteMap.pageInfoMap[currentPageId]
     if (pageInfo) {
       breadcrumbs.unshift({ title: pageInfo.title })
     }
@@ -39,8 +40,6 @@ export default async function searchNotion(
   }
 
   const searchParams: types.SearchParams = req.body
-
-
 
   // Fetch site map and search results
   const siteMap = await getSiteMap()
@@ -79,9 +78,13 @@ export default async function searchNotion(
       }
     })
     .filter(Boolean)
-    .filter((result) => result && (result.type === 'Post' || result.type === 'Category' || result.type === 'Home'))
-
-
+    .filter(
+      (result) =>
+        result &&
+        (result.type === 'Post' ||
+          result.type === 'Category' ||
+          result.type === 'Home')
+    )
 
   res.setHeader(
     'Cache-Control',

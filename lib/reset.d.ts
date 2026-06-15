@@ -5,4 +5,3 @@ declare module 'react' {
     [key: `--${string}`]: string | number
   }
 }
-

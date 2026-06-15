@@ -8,7 +8,7 @@ import {
   FaThreads,
   FaTiktok,
   FaXTwitter,
-  FaYoutube,
+  FaYoutube
 } from 'react-icons/fa6'
 import { MdOutgoingMail } from 'react-icons/md'
 import { TbBrandGithubFilled } from 'react-icons/tb'
@@ -16,7 +16,17 @@ import styles from 'styles/components/PageSocial.module.css'
 
 import * as config from '@/lib/config'
 
-type SocialPlatform = 'twitter' | 'github' | 'linkedin' | 'newsletter' | 'youtube' | 'instagram' | 'tiktok' | 'facebook' | 'threads' | 'mastodon';
+type SocialPlatform =
+  | 'twitter'
+  | 'github'
+  | 'linkedin'
+  | 'newsletter'
+  | 'youtube'
+  | 'instagram'
+  | 'tiktok'
+  | 'facebook'
+  | 'threads'
+  | 'mastodon'
 
 const socialIconMap: Record<SocialPlatform, React.ReactNode> = {
   twitter: <FaXTwitter />,
@@ -31,9 +41,10 @@ const socialIconMap: Record<SocialPlatform, React.ReactNode> = {
   mastodon: <FaMastodon />
 }
 
-
-
-const socialLinkMap: Record<SocialPlatform, { href: (id: string) => string; title: (id: string) => string; }> = {
+const socialLinkMap: Record<
+  SocialPlatform,
+  { href: (id: string) => string; title: (id: string) => string }
+> = {
   twitter: {
     href: (username: string) => `https://twitter.com/${username}`,
     title: (username: string) => `Twitter @${username}`
@@ -83,23 +94,29 @@ export function PageSocial({
   className?: string
   header?: boolean
 }) {
-    const socialLinks = Object.entries(config.socials)
+  const socialLinks = Object.entries(config.socials)
     .map(([name, username]) => {
-      if (!username || !socialIconMap[name as SocialPlatform]) return null;
+      if (!username || !socialIconMap[name as SocialPlatform]) return null
 
-      const { href, title } = socialLinkMap[name as SocialPlatform];
+      const { href, title } = socialLinkMap[name as SocialPlatform]
 
       return {
         name,
         href: href(username),
         title: title(username),
         icon: socialIconMap[name as SocialPlatform]
-      };
+      }
     })
-    .filter(Boolean);
+    .filter(Boolean)
 
   return (
-    <div className={cs(styles.pageSocial, header ? styles.header : styles.footer, className)}>
+    <div
+      className={cs(
+        styles.pageSocial,
+        header ? styles.header : styles.footer,
+        className
+      )}
+    >
       {socialLinks.map(
         (action) =>
           action && (

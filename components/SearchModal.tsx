@@ -28,17 +28,17 @@ function buildBreadcrumbForResult(
   locale: string
 ): Array<{ title: string }> {
   const breadcrumb: Array<{ title: string }> = [{ title: 'Noxionite' }]
-  
+
   // Find page info
   const pageInfo = siteMap.pageInfoMap?.[result.id]
   if (!pageInfo) {
     return breadcrumb
   }
-  
+
   // Build hierarchical path from current page up through parent structure
   const pagePath = []
   let currentPageId = result.id
-  
+
   while (currentPageId && siteMap.pageInfoMap?.[currentPageId]) {
     const currentPage = siteMap.pageInfoMap[currentPageId]
     if (currentPage.title) {
@@ -46,7 +46,7 @@ function buildBreadcrumbForResult(
     }
     currentPageId = currentPage.parentPageId || null
   }
-  
+
   // Check if this page belongs to a database and insert it after site name
   if (pageInfo.parentDbId) {
     const dbKey = `${pageInfo.parentDbId}_${locale}`
@@ -61,7 +61,7 @@ function buildBreadcrumbForResult(
   } else {
     breadcrumb.push(...pagePath.slice(0, -1)) // No database, just hierarchy
   }
-  
+
   return breadcrumb
 }
 
@@ -75,7 +75,6 @@ export function SearchModal() {
   const { t } = useTranslation('common')
   const router = useRouter()
   const { siteMap } = useAppContext()
-
 
   React.useEffect(() => {
     setMounted(true)
@@ -92,72 +91,80 @@ export function SearchModal() {
     setResults([])
   }, [])
 
-  const handleSearch = React.useCallback(async (searchQuery: string) => {
-    if (!searchQuery.trim() || !siteMap?.databaseInfoMap) {
-      setResults([])
-      return
-    }
-    setIsLoading(true)
-    
-    try {
-      const locale = router.locale || siteLocaleConfig.defaultLocale
-      const databases = Object.entries(siteMap.databaseInfoMap)
-        .filter(([key]) => key.endsWith(`_${locale}`))
-        .map(([, db]) => db)
-      
-      // Search across all databases
-      const searchPromises = databases.map(db =>
-        fetch('/api/search-notion', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: searchQuery, ancestorId: db.id })
-        }).then(response => response.ok ? response.json() as Promise<NotionSearchResponse> : null)
-      )
-      
-      const allResults = await Promise.all(searchPromises)
-      
-      // Process results and add breadcrumbs
-      const combinedResults = allResults
-        .filter(result => result !== null)
-        .flatMap(result => result.results || [])
-        // Remove duplicates based on ID
-        .filter((result, index, self) => 
-          index === self.findIndex(r => r.id === result.id)
+  const handleSearch = React.useCallback(
+    async (searchQuery: string) => {
+      if (!searchQuery.trim() || !siteMap?.databaseInfoMap) {
+        setResults([])
+        return
+      }
+      setIsLoading(true)
+
+      try {
+        const locale = router.locale || siteLocaleConfig.defaultLocale
+        const databases = Object.entries(siteMap.databaseInfoMap)
+          .filter(([key]) => key.endsWith(`_${locale}`))
+          .map(([, db]) => db)
+
+        // Search across all databases
+        const searchPromises = databases.map((db) =>
+          fetch('/api/search-notion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: searchQuery, ancestorId: db.id })
+          }).then((response) =>
+            response.ok
+              ? (response.json() as Promise<NotionSearchResponse>)
+              : null
+          )
         )
-        .map(result => {
-          // Build breadcrumb for each result
-          const breadcrumb = buildBreadcrumbForResult(result, siteMap, locale)
-          return {
-            ...result,
-            breadcrumb,
-            type: result.type === 'Database' ? 'CATEGORY' : result.type
-          }
-        })
-      
-      // Include databases in search results
-      const databaseResults = databases
-        .filter(db => db.name.toLowerCase().includes(searchQuery.toLowerCase()))
-        .map(db => ({
-          id: db.id,
-          title: db.name,
-          type: 'CATEGORY' as const,
-          url: `/category/${db.slug}`,
-          breadcrumb: [
-            { title: 'Noxionite' },
-            { title: db.name }
-          ]
-        }))
-      
-      setResults([...databaseResults, ...combinedResults])
-    } catch (err) {
-      console.error('Search error:', err)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [siteMap, router.locale])
+
+        const allResults = await Promise.all(searchPromises)
+
+        // Process results and add breadcrumbs
+        const combinedResults = allResults
+          .filter((result) => result !== null)
+          .flatMap((result) => result.results || [])
+          // Remove duplicates based on ID
+          .filter(
+            (result, index, self) =>
+              index === self.findIndex((r) => r.id === result.id)
+          )
+          .map((result) => {
+            // Build breadcrumb for each result
+            const breadcrumb = buildBreadcrumbForResult(result, siteMap, locale)
+            return {
+              ...result,
+              breadcrumb,
+              type: result.type === 'Database' ? 'CATEGORY' : result.type
+            }
+          })
+
+        // Include databases in search results
+        const databaseResults = databases
+          .filter((db) =>
+            db.name.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+          .map((db) => ({
+            id: db.id,
+            title: db.name,
+            type: 'CATEGORY' as const,
+            url: `/category/${db.slug}`,
+            breadcrumb: [{ title: 'Noxionite' }, { title: db.name }]
+          }))
+
+        setResults([...databaseResults, ...combinedResults])
+      } catch (err) {
+        console.error('Search error:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [siteMap, router.locale]
+  )
 
   React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => e.key === 'Escape' && closeModal()
+    const handleKeyDown = (e: KeyboardEvent) =>
+      e.key === 'Escape' && closeModal()
     if (isOpen) document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, closeModal])
@@ -177,12 +184,15 @@ export function SearchModal() {
 
   const modalContent = (
     <div className={styles.searchModalOverlay} onClick={closeModal}>
-      <div className={styles.searchModalContent} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={styles.searchModalContent}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className={styles.searchInputWrapper}>
           <IoSearchOutline className={styles.inputIcon} />
           <input
             ref={inputRef}
-            type="text"
+            type='text'
             value={query}
             className={styles.searchInput}
             onChange={(e) => setQuery(e.target.value)}
@@ -205,9 +215,17 @@ export function SearchModal() {
               {results.length > 0 ? (
                 results.map((result) => (
                   <div key={result.id} className={styles.searchResultItem}>
-                    <Link href={result.url} onClick={closeModal} className={styles.searchResultLink}>
-                      <div className={styles.pageTypeTag}
-                           style={{ backgroundColor: `var(--tag-color-${result.type.toLowerCase()})` }}>
+                    <Link
+                      href={result.url}
+                      onClick={closeModal}
+                      className={styles.searchResultLink}
+                    >
+                      <div
+                        className={styles.pageTypeTag}
+                        style={{
+                          backgroundColor: `var(--tag-color-${result.type.toLowerCase()})`
+                        }}
+                      >
                         {result.type}
                       </div>
                       <div className={styles.searchResultTextContainer}>
@@ -239,7 +257,7 @@ export function SearchModal() {
 
   return (
     <>
-      <button className="glass-item" onClick={openModal} title={t('search')}>
+      <button className='glass-item' onClick={openModal} title={t('search')}>
         <IoSearchOutline />
       </button>
       {mounted && isOpen && createPortal(modalContent, document.body)}

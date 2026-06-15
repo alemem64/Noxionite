@@ -22,10 +22,10 @@ export function AuthorButton({ authorName }: { authorName: string }) {
       padding={3}
       disabled={false}
       magnetStrength={3}
-      activeTransition="transform 0.3s ease-out"
-      inactiveTransition="transform 0.5s ease-in-out"
-      wrapperClassName=""
-      innerClassName=""
+      activeTransition='transform 0.3s ease-out'
+      inactiveTransition='transform 0.5s ease-in-out'
+      wrapperClassName=''
+      innerClassName=''
       style={{}}
     >
       <div

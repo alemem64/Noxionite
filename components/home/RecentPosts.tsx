@@ -9,7 +9,10 @@ interface RecentPostsProps {
   siteMap?: SiteMap
 }
 
-export default function RecentPosts({ siteMap, isMobile }: RecentPostsProps & { isMobile?: boolean }) {
+export default function RecentPosts({
+  siteMap,
+  isMobile
+}: RecentPostsProps & { isMobile?: boolean }) {
   const router = useRouter()
   const currentLocale = router.locale || localeConfig.defaultLocale
 
@@ -17,7 +20,10 @@ export default function RecentPosts({ siteMap, isMobile }: RecentPostsProps & { 
     if (!siteMap) return []
     return Object.values(siteMap.pageInfoMap)
       .filter((page) => page.type === 'Post' || page.type === 'Home')
-      .filter((page) => (page.language || localeConfig.defaultLocale) === currentLocale)
+      .filter(
+        (page) =>
+          (page.language || localeConfig.defaultLocale) === currentLocale
+      )
       .map((page) => ({
         pageId: page.pageId,
         title: page.title,
@@ -26,7 +32,7 @@ export default function RecentPosts({ siteMap, isMobile }: RecentPostsProps & { 
         slug: page.slug,
         language: page.language || localeConfig.defaultLocale,
         coverImage: page.coverImage || undefined,
-        coverImageBlock: page.coverImageBlock || undefined,
+        coverImageBlock: page.coverImageBlock || undefined
       }))
   }, [siteMap, currentLocale])
 
@@ -34,8 +40,8 @@ export default function RecentPosts({ siteMap, isMobile }: RecentPostsProps & { 
     <PostList
       posts={recentPosts}
       postsPerPage={6}
-      emptyMessage="No recent posts found."
-      emptyDescription="Check back later for new content."
+      emptyMessage='No recent posts found.'
+      emptyDescription='Check back later for new content.'
       isMobile={isMobile}
     />
   )

@@ -20,7 +20,6 @@ export async function getTweetsMap(
       concurrency: 8
     }
   )
-
 }
 
 async function getTweetImpl(tweetId: string): Promise<any> {

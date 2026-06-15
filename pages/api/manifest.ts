@@ -23,6 +23,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   res.setHeader('Content-Type', 'application/manifest+json')
-  res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400')
+  res.setHeader(
+    'Cache-Control',
+    'public, max-age=3600, stale-while-revalidate=86400'
+  )
   res.json(manifest)
 }

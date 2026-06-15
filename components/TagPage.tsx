@@ -23,19 +23,21 @@ export function TagPage({ pageProps, tag, isMobile }: TagPageProps) {
     if (!siteMap?.pageInfoMap) return []
 
     const allPosts = Object.values(siteMap.pageInfoMap).filter(
-      (page) => page.type === 'Post' || page.type === 'Home' && page.public === true
+      (page) =>
+        page.type === 'Post' || (page.type === 'Home' && page.public === true)
     )
 
     // Filter posts by tag and current locale
     return allPosts.filter((post) => {
       // Check if the post has the specific tag
-      const hasTag = post.tags?.some((postTag: string) => 
-        postTag.toLowerCase() === tag.toLowerCase()
-      ) || false
-      
+      const hasTag =
+        post.tags?.some(
+          (postTag: string) => postTag.toLowerCase() === tag.toLowerCase()
+        ) || false
+
       // Also filter by current locale to prevent showing posts from all languages
       const postLanguage = post.language || siteConfig.locale.defaultLocale
-      
+
       return hasTag && postLanguage === locale
     })
   }, [siteMap?.pageInfoMap, tag, locale])
@@ -50,7 +52,7 @@ export function TagPage({ pageProps, tag, isMobile }: TagPageProps) {
       slug: post.slug,
       language: post.language || siteConfig.locale.defaultLocale,
       coverImage: post.coverImage || undefined,
-      coverImageBlock: post.coverImageBlock || undefined,
+      coverImageBlock: post.coverImageBlock || undefined
     }))
   }, [postsWithTag])
 

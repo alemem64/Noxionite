@@ -85,23 +85,29 @@ export const getSiteMap = async (): Promise<SiteMap> => {
     const allPages = await Promise.all(
       notionDbIds.map((dbId: string) => getAllPagesFromDatabase(dbId))
     )
-    pageInfoMap = allPages.reduce((acc: Record<string, PageInfo>, currentMap: Record<string, PageInfo>) => ({ ...acc, ...currentMap }), {})
-    
+    pageInfoMap = allPages.reduce(
+      (
+        acc: Record<string, PageInfo>,
+        currentMap: Record<string, PageInfo>
+      ) => ({ ...acc, ...currentMap }),
+      {}
+    )
+
     // Build databaseInfoMap from Database-type pages
     for (const [_pageId, pageInfo] of Object.entries(pageInfoMap)) {
       if (pageInfo.type === 'Database' && pageInfo.parentDbId) {
         const dbId = pageInfo.parentDbId
-        
+
         // Create a unique key combining dbId and language to support multiple Database pages per dbId
         const uniqueKey = `${dbId}_${pageInfo.language || 'default'}`
-        
+
         // Use the Database page's info to build DatabaseInfo
         databaseInfoMap[uniqueKey] = {
           id: dbId,
           name: pageInfo.title,
           slug: pageInfo.slug,
           language: pageInfo.language,
-          coverImage: pageInfo.coverImage || null,
+          coverImage: pageInfo.coverImage || null
         }
       }
     }
@@ -118,23 +124,23 @@ export const getSiteMap = async (): Promise<SiteMap> => {
     if (page) {
       const breadcrumb: string[] = []
       let current: PageInfo | undefined = page
-      
+
       while (current) {
         breadcrumb.unshift(current.title)
         current = pageInfoMap[current.parentPageId || ''] || undefined
       }
-      
+
       pageInfoMap[pageId].breadcrumb = breadcrumb
     }
   }
-  
+
   const navigationTree = buildNavigationTree(pageInfoMap)
   removeCircularDependencies(navigationTree) // This removes the circular 'parent' property
   const canonicalPageMap = buildCanonicalPageMap(pageInfoMap)
-  const tagGraphData = buildTagGraphData({ 
-    site: config.site, 
-    pageInfoMap, 
-    navigationTree, 
+  const tagGraphData = buildTagGraphData({
+    site: config.site,
+    pageInfoMap,
+    navigationTree,
     canonicalPageMap,
     lastUpdated: Date.now()
   })
@@ -171,7 +177,9 @@ async function getAllPagesFromDatabase(
       return {}
     }
 
-    const collectionView = getBlockValue(recordMap.collection_view[collectionViewId])
+    const collectionView = getBlockValue(
+      recordMap.collection_view[collectionViewId]
+    )
 
     const collectionData = await notion.getCollectionData(
       collectionId,
@@ -194,7 +202,6 @@ async function getAllPagesFromDatabase(
     }
 
     const pageIds = blockIds
-  
 
     const pageInfoMap: Record<string, PageInfo> = {}
     const collectionRecordMap = collectionData.recordMap as ExtendedRecordMap
@@ -205,10 +212,10 @@ async function getAllPagesFromDatabase(
         console.warn(`WARN: No block found for pageId: ${pageId}`)
         continue
       }
-      
+
       // Use actual Notion page ID from the block
       const actualNotionPageId = block.id
-      
+
       const title = getPageProperty<string>('Title', block, collectionRecordMap)
       const slug = getPageProperty<string>('Slug', block, collectionRecordMap)
       const pageType: PageInfo['type'] =
@@ -259,18 +266,15 @@ async function getAllPagesFromDatabase(
         type: pageType,
         public: isPublic,
         language:
-          getPageProperty<string>('Language', block, collectionRecordMap) || null,
+          getPageProperty<string>('Language', block, collectionRecordMap) ||
+          null,
         parentPageId,
         parentDbId: databaseId,
         childrenPageIds,
         description:
           getPageProperty<string>('Description', block, collectionRecordMap) ||
           null,
-        date: getPageProperty<number>(
-          'Published',
-          block,
-          collectionRecordMap
-        )
+        date: getPageProperty<number>('Published', block, collectionRecordMap)
           ? new Date(
               getPageProperty<number>('Published', block, collectionRecordMap)!
             ).toISOString()
@@ -278,10 +282,16 @@ async function getAllPagesFromDatabase(
         coverImage: processedCoverImage,
         coverImageBlock: block,
         useOriginalCoverImage:
-          getPageProperty<boolean>('Use Original Cover Image', block, collectionRecordMap) ||
-          null,
-        tags: getPageProperty<string[]>('Tags', block, collectionRecordMap) || [],
-        authors: getPageProperty<string[]>('Authors', block, collectionRecordMap) || [],
+          getPageProperty<boolean>(
+            'Use Original Cover Image',
+            block,
+            collectionRecordMap
+          ) || null,
+        tags:
+          getPageProperty<string[]>('Tags', block, collectionRecordMap) || [],
+        authors:
+          getPageProperty<string[]>('Authors', block, collectionRecordMap) ||
+          [],
         children: []
       }
     }
@@ -298,7 +308,9 @@ async function getAllPagesFromDatabase(
  * @param pageInfoMap A map of page IDs to their info.
  * @returns An array of root-level pages, each with its children nested inside.
  */
-function buildNavigationTree(pageInfoMap: Record<string, PageInfo>): PageInfo[] {
+function buildNavigationTree(
+  pageInfoMap: Record<string, PageInfo>
+): PageInfo[] {
   const pageInfoArray = Object.values(pageInfoMap)
 
   const createPageCopy = (page: PageInfo): PageInfo => {
@@ -311,7 +323,6 @@ function buildNavigationTree(pageInfoMap: Record<string, PageInfo>): PageInfo[] 
   const pageCopyMap = new Map(
     pageInfoArray.map((p) => [p.pageId, createPageCopy(p)])
   )
-
 
   for (const page of pageInfoArray) {
     const pageCopy = pageCopyMap.get(page.pageId)

@@ -17,7 +17,7 @@ export default siteConfig({
 
   // DNS record for domain verification (optional)
   // Replace with your actual Google Search Console verification code
-  dnsRecord: '_QZy3wmjCIgdXI6R_HH1kRLcZJR5OkAUDRj3NiMGKxs', 
+  dnsRecord: '_QZy3wmjCIgdXI6R_HH1kRLcZJR5OkAUDRj3NiMGKxs',
 
   // hero section (optional)
   heroAssets: [
@@ -43,7 +43,8 @@ export default siteConfig({
       content: {
         en: {
           title: '1. Perfect Notion Compatibility',
-          description: 'All Notion blocks rendered beautifully and effortlessly.'
+          description:
+            'All Notion blocks rendered beautifully and effortlessly.'
         },
         ko: {
           title: '1. Notion 완벽 호환',
@@ -72,7 +73,8 @@ export default siteConfig({
       content: {
         en: {
           title: '3. Unlimited Nested Categories',
-          description: 'Flexible and systematic blog management with folder-style categories.'
+          description:
+            'Flexible and systematic blog management with folder-style categories.'
         },
         ko: {
           title: '3. 무한 폴더식 카테고리',
@@ -102,7 +104,8 @@ export default siteConfig({
       content: {
         en: {
           title: '5. Captivating Glassmorphism',
-          description: 'Glassmorphism and responsive design applied to every page.'
+          description:
+            'Glassmorphism and responsive design applied to every page.'
         },
         ko: {
           title: '5. 매혹적인 글래스모피즘',
@@ -131,31 +134,32 @@ export default siteConfig({
       content: {
         en: {
           title: '7. Fully Open Source',
-          description: 'Completely free with unlimited customization under MIT license.'
+          description:
+            'Completely free with unlimited customization under MIT license.'
         },
         ko: {
           title: '7. 완전한 오픈 소스',
           description: 'MIT 라이센스로 완전히 무료로 무궁무진한 커스터마이징.'
         }
       }
-    },
+    }
   ],
 
   // author metadata (optional)
   authors: [
     {
-      name: 'Jaewan Shin',                       // Author name
-      avatar_dir: '/authors/Jzahnny.jpeg',   // Author avatar image path in public folder (28px x 28px recommended)
-      home_url: 'https://jzahnny.vercel.app/',   // Author home URL
+      name: 'Jaewan Shin', // Author name
+      avatar_dir: '/authors/Jzahnny.jpeg', // Author avatar image path in public folder (28px x 28px recommended)
+      home_url: 'https://jzahnny.vercel.app/' // Author home URL
     }
   ],
 
   // social links, the order is preserved.
   socials: {
-    github: 'alemem64',  // optional github username
+    github: 'alemem64', // optional github username
     linkedin: 'alemem64', // optional linkedin username
     youtube: 'channel/UCV7iVbVip33wD_rsiQLSubg?si=Tf0bKAPvtDY_J833', // optional youtube channel id eg. channel/UCXXXXXXXXXXXXXXXXXXXXXX
-    instagram: 'alemem64', // optional instagram username
+    instagram: 'alemem64' // optional instagram username
     // tiktok: '#', // optional tiktok username
     // threads: '#', // optional threads username
     // facebook: '#',  // optional facebook profile id on profile page eg. 1000XXXXXXXXXXX

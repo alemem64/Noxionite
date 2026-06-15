@@ -10,4 +10,3 @@ export function bootstrap() {
    This site is powered by Noxionite https://github.com/alemem64/noxionite.
 `)
 }
-

@@ -39,8 +39,6 @@ export async function resolveNotionPage(
       try {
         // check if the database has a cached mapping of this URI to page ID
         pageId = await db.get(cacheKey)
-
-    
       } catch (err: any) {
         // ignore redis errors
         console.warn(`redis error get "${cacheKey}"`, err.message)
@@ -66,8 +64,6 @@ export async function resolveNotionPage(
           try {
             // update the database mapping of URI to pageId
             await db.set(cacheKey, pageId, cacheTTL)
-
-        
           } catch (err: any) {
             // ignore redis errors
             console.warn(`redis error set "${cacheKey}"`, err.message)
@@ -93,7 +89,8 @@ export async function resolveNotionPage(
       return {
         site,
         error: {
-          message: 'No root page ID configured. Please use Home type pages in your Notion database for the landing page.',
+          message:
+            'No root page ID configured. Please use Home type pages in your Notion database for the landing page.',
           statusCode: 404
         }
       }

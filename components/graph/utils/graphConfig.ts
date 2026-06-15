@@ -19,7 +19,7 @@ export const GRAPH_CONFIG = {
     TAG_NAME_FONT_SIZE: 2,
     GLOW_SIZE_MULTIPLIER: 20, // pixels for zoom-independent glow size
     GLOW_OPACITY: 0.6,
-    GLOW_MIN_OFFSET_SIZE: 2, // offset added to node size for minimum glow size
+    GLOW_MIN_OFFSET_SIZE: 2 // offset added to node size for minimum glow size
   },
 
   // Zoom configuration
@@ -31,7 +31,7 @@ export const GRAPH_CONFIG = {
     BASE_NODE_SIZE: 4,
     DEFAULT_PADDING: 200,
     ANIMATION_DURATION: 400,
-    MULTIPLE_ZOOM_RATIO: 1.0,
+    MULTIPLE_ZOOM_RATIO: 1.0
   },
 
   // Physics engine
@@ -43,7 +43,7 @@ export const GRAPH_CONFIG = {
       d3VelocityDecay: 0.3,
       linkDistance: 30,
       linkStrength: 1,
-      nodeRepulsion: 15,
+      nodeRepulsion: 15
     },
     tag: {
       cooldownTicks: 100,
@@ -52,8 +52,8 @@ export const GRAPH_CONFIG = {
       d3VelocityDecay: 0.4,
       linkDistance: 60,
       linkStrength: 0.7,
-      nodeRepulsion: 50,
-    },
+      nodeRepulsion: 50
+    }
   },
 
   // Performance
@@ -63,19 +63,19 @@ export const GRAPH_CONFIG = {
     debounceDelay: 16, // ~60fps
     cacheTimeout: 5 * 60 * 1000, // 5 minutes
     focusFrequency: 200, // Focus retry interval in ms during physics engine operation
-    focusTry: 5, // maximum number of focus retry attempts
+    focusTry: 5 // maximum number of focus retry attempts
   },
 
   // Responsive breakpoints
   responsive: {
     sidenav: { width: 300, height: 300 },
     fullscreen: { minWidth: 400, minHeight: 400 },
-    home: { width: 800, height: 600 },
-  },
-} as const;
+    home: { width: 800, height: 600 }
+  }
+} as const
 
-export const HOME_NODE_ID = '__HOME__';
-export const ALL_TAGS_NODE_ID = '__ALL_TAGS__';
+export const HOME_NODE_ID = '__HOME__'
+export const ALL_TAGS_NODE_ID = '__ALL_TAGS__'
 
 // Color schemes for different themes with glassmorphism
 export const GRAPH_COLORS = {
@@ -88,7 +88,7 @@ export const GRAPH_COLORS = {
     nodeOuterBorder: 'rgba(0, 0, 0, 0.1)',
     nodeHighlightOuterBorder: 'rgba(0, 0, 0, 0.5)',
     nodeGlow: 'rgba(23, 77, 255, 0.8)',
-    nodeGlowEnd: 'rgba(23, 77, 255, 0)',
+    nodeGlowEnd: 'rgba(23, 77, 255, 0)'
   },
   dark: {
     link: 'rgba(255, 255, 255, 0.2)',
@@ -99,6 +99,6 @@ export const GRAPH_COLORS = {
     nodeOuterBorder: 'rgba(255, 255, 255, 0.1)',
     nodeHighlightOuterBorder: 'rgba(255, 255, 255, 0.5)',
     nodeGlow: 'rgba(23, 77, 255, 0.8)',
-    nodeGlowEnd: 'rgba(23, 77, 255, 0)',
-  },
-};
+    nodeGlowEnd: 'rgba(23, 77, 255, 0)'
+  }
+}

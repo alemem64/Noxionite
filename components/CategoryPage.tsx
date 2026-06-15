@@ -28,9 +28,11 @@ interface PostItem {
 const _POSTS_PER_PAGE = 5
 
 // Utility function to get all posts from a category recursively (same logic as CategoryTree)
-const getAllPostsFromCategory = (categoryPageInfo: types.PageInfo): PostItem[] => {
+const getAllPostsFromCategory = (
+  categoryPageInfo: types.PageInfo
+): PostItem[] => {
   const posts: PostItem[] = []
-  
+
   const collectPosts = (pageInfo: types.PageInfo) => {
     // If this is a post, add it to the list
     if (pageInfo.type === 'Post' || pageInfo.type === 'Home') {
@@ -45,7 +47,7 @@ const getAllPostsFromCategory = (categoryPageInfo: types.PageInfo): PostItem[] =
         coverImageBlock: pageInfo.coverImageBlock || undefined // Pass the block
       })
     }
-    
+
     // Recursively collect posts from children
     if (pageInfo.children && pageInfo.children.length > 0) {
       for (const child of pageInfo.children) {
@@ -53,16 +55,19 @@ const getAllPostsFromCategory = (categoryPageInfo: types.PageInfo): PostItem[] =
       }
     }
   }
-  
+
   // Start collecting from the category (same as CategoryTree countPostsRecursively)
   collectPosts(categoryPageInfo)
-  
+
   return posts
 }
 
-
-
-export function CategoryPage({ pageProps, isMobile, isDbPage, dbPageInfo }: CategoryPageProps) {
+export function CategoryPage({
+  pageProps,
+  isMobile,
+  isDbPage,
+  dbPageInfo
+}: CategoryPageProps) {
   const { siteMap, pageId } = pageProps
   const router = useRouter()
   const { isDarkMode: _isDarkMode } = useDarkMode()
@@ -70,17 +75,20 @@ export function CategoryPage({ pageProps, isMobile, isDbPage, dbPageInfo }: Cate
 
   // Get texts for current locale
   const locale = router.locale
-  
+
   // Get current page info from navigationTree (same as CategoryTree uses)
   const currentPageInfo = React.useMemo(() => {
     if (isDbPage && dbPageInfo) {
-      return dbPageInfo;
+      return dbPageInfo
     }
 
     if (!siteMap || !pageId || !siteMap.navigationTree) return null
-    
+
     // Find the page in navigationTree (same logic as CategoryTree)
-    const findInNavigationTree = (items: types.PageInfo[], targetPageId: string): types.PageInfo | null => {
+    const findInNavigationTree = (
+      items: types.PageInfo[],
+      targetPageId: string
+    ): types.PageInfo | null => {
       for (const item of items) {
         if (item.pageId === targetPageId) {
           return item
@@ -92,19 +100,19 @@ export function CategoryPage({ pageProps, isMobile, isDbPage, dbPageInfo }: Cate
       }
       return null
     }
-    
+
     return findInNavigationTree(siteMap.navigationTree, pageId)
   }, [siteMap, pageId, isDbPage, dbPageInfo])
-  
+
   // Get all posts from this category
   const allPosts = React.useMemo(() => {
     if (!currentPageInfo) return []
-    
+
     const posts = getAllPostsFromCategory(currentPageInfo)
 
     // Filter posts by current locale
-    const filteredPosts = posts.filter(post => post.language === locale)
-    
+    const filteredPosts = posts.filter((post) => post.language === locale)
+
     // Sort by published date (newest first)
     return filteredPosts.toSorted((a, b) => {
       if (!a.date && !b.date) return 0
@@ -113,8 +121,6 @@ export function CategoryPage({ pageProps, isMobile, isDbPage, dbPageInfo }: Cate
       return new Date(b.date).getTime() - new Date(a.date).getTime()
     })
   }, [currentPageInfo, locale])
-  
-
 
   // Format posts for PostList component
   const formattedPosts = React.useMemo(() => {
@@ -126,7 +132,7 @@ export function CategoryPage({ pageProps, isMobile, isDbPage, dbPageInfo }: Cate
       slug: post.slug,
       language: post.language,
       coverImage: post.coverImage,
-      coverImageBlock: post.coverImageBlock,
+      coverImageBlock: post.coverImageBlock
     }))
   }, [allPosts])
 

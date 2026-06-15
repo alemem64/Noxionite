@@ -1,5 +1,10 @@
-import { useState, useCallback } from 'react';
-import type { GraphState, GraphViewType, GraphDisplayType, ZoomState } from '../types/graph.types';
+import { useState, useCallback } from 'react'
+import type {
+  GraphState,
+  GraphViewType,
+  GraphDisplayType,
+  ZoomState
+} from '../types/graph.types'
 
 export const useGraphState = () => {
   const [state, setState] = useState<GraphState>(() => ({
@@ -8,73 +13,74 @@ export const useGraphState = () => {
     isModalOpen: false,
     zoomState: {
       post_view: { zoom: 1, center: { x: 0, y: 0 } },
-      tag_view: { zoom: 1, center: { x: 0, y: 0 } },
+      tag_view: { zoom: 1, center: { x: 0, y: 0 } }
     },
     isGraphLoaded: false,
     currentTag: undefined,
     highlightSlugs: [],
-    highlightTags: [],
-  }));
+    highlightTags: []
+  }))
 
   const setCurrentView = useCallback((view: GraphViewType) => {
-    setState(prev => ({ ...prev, currentView: view }));
-  }, []);
+    setState((prev) => ({ ...prev, currentView: view }))
+  }, [])
 
   const setDisplayType = useCallback((type: GraphDisplayType) => {
-    setState(prev => ({ ...prev, displayType: type }));
-  }, []);
+    setState((prev) => ({ ...prev, displayType: type }))
+  }, [])
 
   const openModal = useCallback(() => {
-    setState(preve => ({ ...preve, isModalOpen: true }));
-  }, []);
+    setState((preve) => ({ ...preve, isModalOpen: true }))
+  }, [])
 
   const closeModal = useCallback(() => {
-    setState(prev => ({ ...prev, isModalOpen: false }));
-  }, []);
+    setState((prev) => ({ ...prev, isModalOpen: false }))
+  }, [])
 
-  const setZoomStateForView = useCallback((view: GraphViewType, zoom: ZoomState) => {
-    setState(prev => ({
-      ...prev,
-      zoomState: {
-        ...prev.zoomState,
-        [view]: zoom
-      }
-    }));
-  }, []);
+  const setZoomStateForView = useCallback(
+    (view: GraphViewType, zoom: ZoomState) => {
+      setState((prev) => ({
+        ...prev,
+        zoomState: {
+          ...prev.zoomState,
+          [view]: zoom
+        }
+      }))
+    },
+    []
+  )
 
   const setIsGraphLoaded = useCallback((loaded: boolean) => {
-    setState(prev => ({ ...prev, isGraphLoaded: loaded }));
-  }, []);
+    setState((prev) => ({ ...prev, isGraphLoaded: loaded }))
+  }, [])
 
   const setCurrentTag = useCallback((tag?: string) => {
-    setState(prev => ({ ...prev, currentTag: tag }));
-  }, []);
+    setState((prev) => ({ ...prev, currentTag: tag }))
+  }, [])
 
   const setHighlightSlugs = useCallback((slugs: string[]) => {
-    setState(prev => ({ ...prev, highlightSlugs: slugs }));
-  }, []);
+    setState((prev) => ({ ...prev, highlightSlugs: slugs }))
+  }, [])
 
   const setHighlightTags = useCallback((tags: string[]) => {
-    setState(prev => ({ ...prev, highlightTags: tags }));
-  }, []);
+    setState((prev) => ({ ...prev, highlightTags: tags }))
+  }, [])
 
   const clearHighlight = useCallback(() => {
-    setState(prev => ({ ...prev, highlightSlugs: [], highlightTags: [] }));
-  }, []);
+    setState((prev) => ({ ...prev, highlightSlugs: [], highlightTags: [] }))
+  }, [])
 
   const resetZoomState = useCallback((view?: GraphViewType) => {
     if (view) {
-      setState(prev => {
-        const newZoomState = { ...prev.zoomState };
-        delete newZoomState[view];
-        return { ...prev, zoomState: newZoomState };
-      });
+      setState((prev) => {
+        const newZoomState = { ...prev.zoomState }
+        delete newZoomState[view]
+        return { ...prev, zoomState: newZoomState }
+      })
     } else {
-      setState(prev => ({ ...prev, zoomState: {} }));
+      setState((prev) => ({ ...prev, zoomState: {} }))
     }
-  }, []);
-
-
+  }, [])
 
   return {
     state,
@@ -89,7 +95,7 @@ export const useGraphState = () => {
       setHighlightSlugs,
       setHighlightTags,
       clearHighlight,
-      resetZoomState,
-    },
-  };
-};
+      resetZoomState
+    }
+  }
+}

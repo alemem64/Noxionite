@@ -55,7 +55,7 @@ const PostCard = ({ post }: { post: PostListProps['posts'][0] }) => {
             <div
               className={styles.cardCoverImage}
               style={{
-                backgroundImage: `url('${mapImageUrl(post.coverImage, post.coverImageBlock)}')`,
+                backgroundImage: `url('${mapImageUrl(post.coverImage, post.coverImageBlock)}')`
               }}
             />
           )}
@@ -63,18 +63,12 @@ const PostCard = ({ post }: { post: PostListProps['posts'][0] }) => {
           {/* Content */}
           <div className={styles.cardContent}>
             <div>
-              <h2 className={styles.cardTitle}>
-                {post.title}
-              </h2>
+              <h2 className={styles.cardTitle}>{post.title}</h2>
               {post.date && (
-                <div className={styles.cardDate}>
-                  {formatDate(post.date)}
-                </div>
+                <div className={styles.cardDate}>{formatDate(post.date)}</div>
               )}
               {post.description && (
-                <p className={styles.cardDescription}>
-                  {post.description}
-                </p>
+                <p className={styles.cardDescription}>{post.description}</p>
               )}
             </div>
           </div>
@@ -84,16 +78,15 @@ const PostCard = ({ post }: { post: PostListProps['posts'][0] }) => {
   )
 }
 
-export function PostList({ 
-  posts, 
-  title, 
-  description, 
-  emptyMessage = "No posts found.",
-  emptyDescription = "Try checking back later or explore other categories.",
+export function PostList({
+  posts,
+  title,
+  description,
+  emptyMessage = 'No posts found.',
+  emptyDescription = 'Try checking back later or explore other categories.',
   isMobile = false
 }: PostListProps) {
   const [currentPage, setCurrentPage] = React.useState(1)
-
 
   const totalPages = Math.ceil(posts.length / 5)
   const startIndex = (currentPage - 1) * 5
@@ -104,17 +97,17 @@ export function PostList({
     const pageNumbers = []
     const maxVisiblePages = isMobile ? 5 : 10
     const middlePages = isMobile ? 3 : 8
-    
+
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i)
       }
     } else {
       pageNumbers.push(1)
-      
+
       // Calculate how many pages to show in the middle section
       let start, end
-      
+
       if (currentPage <= Math.floor(middlePages / 2) + 1) {
         // Near the beginning: show pages 2 to middlePages + 1
         start = 2
@@ -126,9 +119,12 @@ export function PostList({
       } else {
         // Middle section: center around currentPage
         start = Math.max(currentPage - Math.floor(middlePages / 2), 2)
-        end = Math.min(currentPage + Math.floor(middlePages / 2), totalPages - 1)
+        end = Math.min(
+          currentPage + Math.floor(middlePages / 2),
+          totalPages - 1
+        )
       }
-      
+
       // Adjust if we don't have enough pages
       if (end - start + 1 < middlePages) {
         if (start === 2) {
@@ -137,79 +133,81 @@ export function PostList({
           start = Math.max(end - middlePages + 1, 2)
         }
       }
-      
+
       if (start > 2) {
         pageNumbers.push('...')
       } else if (start === 2 && totalPages > maxVisiblePages) {
         // No ellipsis needed if we're showing from page 2
       }
-      
+
       for (let i = start; i <= end; i++) {
         pageNumbers.push(i)
       }
-      
+
       if (end < totalPages - 1) {
         pageNumbers.push('...')
       } else if (end === totalPages - 1 && totalPages > maxVisiblePages) {
         // No ellipsis needed if we're showing up to totalPages - 1
       }
-      
+
       pageNumbers.push(totalPages)
     }
-    
+
     return pageNumbers
   }
 
   return (
-    <div style={{
-      width: '100%',
-      maxWidth: '800px',
-      margin: '0 auto',
-      padding: '2rem',
-    }}>
+    <div
+      style={{
+        width: '100%',
+        maxWidth: '800px',
+        margin: '0 auto',
+        padding: '2rem'
+      }}
+    >
       {title && (
-        <div style={{
-          marginBottom: '3rem',
-          borderBottom: '1px solid var(--secondary-bg-color)',
-          paddingBottom: '2rem'
-        }}>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '700',
-            color: 'var(--primary-text-color)',
-            marginBottom: '1rem',
-            lineHeight: '1.2'
-          }}>
+        <div
+          style={{
+            marginBottom: '3rem',
+            borderBottom: '1px solid var(--secondary-bg-color)',
+            paddingBottom: '2rem'
+          }}
+        >
+          <h1
+            style={{
+              fontSize: '2.5rem',
+              fontWeight: '700',
+              color: 'var(--primary-text-color)',
+              marginBottom: '1rem',
+              lineHeight: '1.2'
+            }}
+          >
             {title}
           </h1>
           {description && (
-            <p style={{
-              fontSize: '1.1rem',
-              color: 'var(--secondary-text-color)',
-              lineHeight: '1.6',
-              marginBottom: '1rem'
-            }}>
+            <p
+              style={{
+                fontSize: '1.1rem',
+                color: 'var(--secondary-text-color)',
+                lineHeight: '1.6',
+                marginBottom: '1rem'
+              }}
+            >
               {description}
             </p>
           )}
-
         </div>
       )}
 
       {currentPosts.length > 0 ? (
         <div className={styles.postListContainer}>
           {currentPosts.map((post) => (
-            <PostCard 
-              key={post.pageId} 
-              post={post}
-            />
+            <PostCard key={post.pageId} post={post} />
           ))}
         </div>
       ) : (
         <div className={styles.postListEmpty}>
-          <div className={styles.postListEmptyMessage}>
-            {emptyMessage}
-          </div>
+          <div className={styles.postListEmptyMessage}>{emptyMessage}</div>
           <div className={styles.postListEmptyDescription}>
             {emptyDescription}
           </div>
@@ -220,7 +218,10 @@ export function PostList({
         <div className={styles.postListPagination}>
           {getPageNumbers().map((pageNum, index) =>
             typeof pageNum === 'string' ? (
-              <span key={`ellipsis-${index}`} className={styles.paginationEllipsis}>
+              <span
+                key={`ellipsis-${index}`}
+                className={styles.paginationEllipsis}
+              >
                 {pageNum}
               </span>
             ) : (

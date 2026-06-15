@@ -73,7 +73,11 @@ export function LanguageSwitcher() {
 
   return (
     <>
-      <div ref={buttonRef} className='glass-item' style={{ position: 'relative' }}>
+      <div
+        ref={buttonRef}
+        className='glass-item'
+        style={{ position: 'relative' }}
+      >
         <button
           onClick={() => setIsOpen(!isOpen)}
           style={{

@@ -12,11 +12,9 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
   const locale = context.locale!
 
   try {
-  
-    
     // Get the site map with all pages and navigation tree
     const siteMap = await getCachedSiteMap()
-    
+
     // Find all pages with type 'Home'
     const homePages = []
     for (const pageInfo of Object.values(siteMap.pageInfoMap)) {
@@ -31,7 +29,7 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
       const homePageIds = homePages.map((page) => page.pageId)
       const recordMapPromises = homePageIds.map((id) => getPage(id))
       const recordMaps = await Promise.all(recordMapPromises)
-      
+
       for (const [index, recordMap] of recordMaps.entries()) {
         const pageId = homePageIds[index]
         if (pageId) {
@@ -42,7 +40,11 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
 
     return {
       props: {
-        ...(await serverSideTranslations(locale, ['common', 'languages'], nextI18NextConfig)),
+        ...(await serverSideTranslations(
+          locale,
+          ['common', 'languages'],
+          nextI18NextConfig
+        )),
         site,
         siteMap,
         pageId: 'home', // Add pageId for TopNav to render
@@ -55,7 +57,11 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
 
     return {
       props: {
-        ...(await serverSideTranslations(locale, ['common', 'languages'], nextI18NextConfig)),
+        ...(await serverSideTranslations(
+          locale,
+          ['common', 'languages'],
+          nextI18NextConfig
+        )),
         site,
         siteMap: undefined,
         pageId: 'home' // Add pageId for TopNav to render

@@ -1,6 +1,6 @@
 import type { ParsedUrlQuery } from 'node:querystring'
 
-import { type  Block,type ExtendedRecordMap  } from 'notion-types'
+import { type Block, type ExtendedRecordMap } from 'notion-types'
 
 export * from 'notion-types'
 
@@ -22,7 +22,9 @@ export interface PageProps {
   isPrivate?: boolean
   topLevelPageInfo?: PageInfo | null
   showTOC?: boolean
-  setBackgroundAsset?: (asset: HTMLImageElement | HTMLVideoElement | string | null) => void
+  setBackgroundAsset?: (
+    asset: HTMLImageElement | HTMLVideoElement | string | null
+  ) => void
   isHeroPaused?: boolean
   setIsHeroPaused?: (isPaused: boolean) => void
   heroStream?: MediaStream | null
@@ -68,10 +70,10 @@ export interface PageInfo {
   pageId: string
   type: 'Post' | 'Category' | 'Home' | 'Database' | 'Unknown'
   slug: string
-  parentPageId: string | null;
-  parentDbId?: string | null;
-  childrenPageIds: string[];
-  language: string | null;
+  parentPageId: string | null
+  parentDbId?: string | null
+  childrenPageIds: string[]
+  language: string | null
   public: boolean | null
   useOriginalCoverImage: boolean | null
   description: string | null
@@ -130,15 +132,15 @@ export interface CanonicalPageMap {
 export interface PageUrlOverridesMap {
   // maps from a URL path to the notion page id the page should be resolved to
   // (this overrides the built-in URL path generation for these pages)
-  [pagePath:string]: string
+  [pagePath: string]: string
 }
 
 export interface BreadcrumbItem {
-  title: string;
-  pageId?: string;
-  pageInfo?: PageInfo;
-  href?: string;
-  icon?: React.ReactNode;
+  title: string
+  pageId?: string
+  pageInfo?: PageInfo
+  href?: string
+  icon?: React.ReactNode
 }
 
 export interface PageUrlOverridesInverseMap {

@@ -25,17 +25,17 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
 }) => {
   if (isMobile) {
     return (
-      <Link href="/" className="breadcrumb-item active">
-        <span className="breadcrumb-icon">
-          <Image 
-            src="/icon.png" 
-            alt="Site Icon" 
-            className="site-icon"
+      <Link href='/' className='breadcrumb-item active'>
+        <span className='breadcrumb-icon'>
+          <Image
+            src='/icon.png'
+            alt='Site Icon'
+            className='site-icon'
             width={16}
             height={16}
           />
         </span>
-        <span className="breadcrumb-text">{siteConfig.name}</span>
+        <span className='breadcrumb-text'>{siteConfig.name}</span>
       </Link>
     )
   }
@@ -45,68 +45,68 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
       {breadcrumbs.map((crumb, index) => {
         const isLastCrumb = index === breadcrumbs.length - 1
         const isFirstCrumb = index === 0
-        
+
         return (
           <React.Fragment key={index}>
-            {!isFirstCrumb && <span className="breadcrumb-separator">›</span>}
+            {!isFirstCrumb && <span className='breadcrumb-separator'>›</span>}
             {isLastCrumb || !crumb.href ? (
-              <span className="breadcrumb-item active">
+              <span className='breadcrumb-item active'>
                 {isFirstCrumb ? (
                   <>
-                    <span className="breadcrumb-icon">
-                      <Image 
-                        src="/icon.png" 
-                        alt="Site Icon" 
-                        className="site-icon"
+                    <span className='breadcrumb-icon'>
+                      <Image
+                        src='/icon.png'
+                        alt='Site Icon'
+                        className='site-icon'
                         width={16}
                         height={16}
                       />
                     </span>
-                    <span className="breadcrumb-text">{crumb.title}</span>
+                    <span className='breadcrumb-text'>{crumb.title}</span>
                   </>
-                ) : (index === 1 && pathname.startsWith('/tag/')) || 
-                   (index === 1 && pathname === '/all-tags') ? (
+                ) : (index === 1 && pathname.startsWith('/tag/')) ||
+                  (index === 1 && pathname === '/all-tags') ? (
                   <>
-                    <FaTags className="breadcrumb-icon-inline" />
-                    <span className="breadcrumb-text">{crumb.title}</span>
+                    <FaTags className='breadcrumb-icon-inline' />
+                    <span className='breadcrumb-text'>{crumb.title}</span>
                   </>
-                ) : (pathname === '/404' && index === 1) ? (
+                ) : pathname === '/404' && index === 1 ? (
                   <>
-                    <MdError className="breadcrumb-icon-inline" />
-                    <span className="breadcrumb-text">{crumb.title}</span>
+                    <MdError className='breadcrumb-icon-inline' />
+                    <span className='breadcrumb-text'>{crumb.title}</span>
                   </>
                 ) : (
-                  <span className="breadcrumb-text">{crumb.title}</span>
+                  <span className='breadcrumb-text'>{crumb.title}</span>
                 )}
               </span>
             ) : (
-              <Link href={crumb.href} className="breadcrumb-item">
+              <Link href={crumb.href} className='breadcrumb-item'>
                 {isFirstCrumb ? (
                   <>
-                    <span className="breadcrumb-icon">
-                      <Image 
-                        src="/icon.png" 
-                        alt="Site Icon" 
-                        className="site-icon"
+                    <span className='breadcrumb-icon'>
+                      <Image
+                        src='/icon.png'
+                        alt='Site Icon'
+                        className='site-icon'
                         width={16}
                         height={16}
                       />
                     </span>
-                    <span className="breadcrumb-text">{crumb.title}</span>
+                    <span className='breadcrumb-text'>{crumb.title}</span>
                   </>
-                ) : (index === 1 && pathname.startsWith('/tag/')) || 
-                   (index === 1 && pathname === '/all-tags') ? (
+                ) : (index === 1 && pathname.startsWith('/tag/')) ||
+                  (index === 1 && pathname === '/all-tags') ? (
                   <>
-                    <FaTags className="breadcrumb-icon-inline" />
-                    <span className="breadcrumb-text">{crumb.title}</span>
+                    <FaTags className='breadcrumb-icon-inline' />
+                    <span className='breadcrumb-text'>{crumb.title}</span>
                   </>
-                ) : (pathname === '/404' && index === 1) ? (
+                ) : pathname === '/404' && index === 1 ? (
                   <>
-                    <MdError className="breadcrumb-icon-inline" />
-                    <span className="breadcrumb-text">{crumb.title}</span>
+                    <MdError className='breadcrumb-icon-inline' />
+                    <span className='breadcrumb-text'>{crumb.title}</span>
                   </>
                 ) : (
-                  <span className="breadcrumb-text">{crumb.title}</span>
+                  <span className='breadcrumb-text'>{crumb.title}</span>
                 )}
               </Link>
             )}

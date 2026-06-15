@@ -31,26 +31,38 @@ const countPostsRecursively = (item: PageInfo): number => {
     count = 1
   }
   if (item.children && item.children.length > 0) {
-    count += item.children.reduce((total, child) => total + countPostsRecursively(child), 0)
+    count += item.children.reduce(
+      (total, child) => total + countPostsRecursively(child),
+      0
+    )
   }
   return count
 }
 
-function CategoryItem({ item, level, isExpanded, toggleExpanded }: CategoryItemProps) {
+function CategoryItem({
+  item,
+  level,
+  isExpanded,
+  toggleExpanded
+}: CategoryItemProps) {
   const isCategory = item.type === 'Category'
   const router = useRouter()
 
   // Construct pageUrl without locale
-  const pageUrl = item.type === 'Post' || item.type === 'Home'
-    ? `/post/${item.slug}`
-    : item.type === 'Category'
-    ? `/category/${item.slug}`
-    : `/${item.slug}`;
-  
+  const pageUrl =
+    item.type === 'Post' || item.type === 'Home'
+      ? `/post/${item.slug}`
+      : item.type === 'Category'
+        ? `/category/${item.slug}`
+        : `/${item.slug}`
+
   // Clean asPath and pageUrl for comparison
-  const cleanedAsPath = router.asPath.split('?')[0].split('#')[0].replace(/\/$/, '');
-  const cleanedPageUrl = pageUrl.replace(/\/$/, '');
-  const isActive = cleanedAsPath === cleanedPageUrl;
+  const cleanedAsPath = router.asPath
+    .split('?')[0]
+    .split('#')[0]
+    .replace(/\/$/, '')
+  const cleanedPageUrl = pageUrl.replace(/\/$/, '')
+  const isActive = cleanedAsPath === cleanedPageUrl
 
   const postCount = isCategory ? countPostsRecursively(item) : 0
   // Only apply databaseItem class at level 0
@@ -59,12 +71,12 @@ function CategoryItem({ item, level, isExpanded, toggleExpanded }: CategoryItemP
   const containerClassName = `${styles.categoryItemContainer} ${isDatabaseItem ? styles.databaseItem : ''}`
 
   const handleMouseEnter = () => {
-    graphControl.changeViewAndFocusBySlug('post_view', item.slug, 'sidenav');
-  };
+    graphControl.changeViewAndFocusBySlug('post_view', item.slug, 'sidenav')
+  }
 
   return (
-    <div 
-      className={containerClassName} 
+    <div
+      className={containerClassName}
       style={{ paddingLeft: `${level * 16}px` }}
       onMouseEnter={handleMouseEnter}
     >
@@ -78,16 +90,20 @@ function CategoryItem({ item, level, isExpanded, toggleExpanded }: CategoryItemP
       <Link href={pageUrl} className={linkClassName} data-page-id={item.pageId}>
         {isDatabaseItem && item.coverImage && (
           // Replace the img tag with Image component
-          <Image 
-            src={item.coverImage} 
+          <Image
+            src={item.coverImage}
             alt={item.title}
             className={styles.coverImage}
             width={32}
             height={32}
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+            onError={(e) => {
+              ;(e.target as HTMLImageElement).style.display = 'none'
+            }}
           />
         )}
-        <span className={`${styles.title} ${isCategory ? styles.categoryTitle : ''}`}>
+        <span
+          className={`${styles.title} ${isCategory ? styles.categoryTitle : ''}`}
+        >
           {item.title}
           {isCategory && <span className={styles.postCount}>{postCount}</span>}
         </span>
@@ -96,7 +112,12 @@ function CategoryItem({ item, level, isExpanded, toggleExpanded }: CategoryItemP
   )
 }
 
-function RecursiveCategoryTree({ items, level = 0, expandedItems, toggleItemExpanded }: CategoryTreeProps) {
+function RecursiveCategoryTree({
+  items,
+  level = 0,
+  expandedItems,
+  toggleItemExpanded
+}: CategoryTreeProps) {
   const sortedItems = items?.toSorted((a, b) => {
     if (a.type === 'Category' && b.type !== 'Category') return -1
     if (a.type !== 'Category' && b.type === 'Category') return 1
@@ -118,16 +139,18 @@ function RecursiveCategoryTree({ items, level = 0, expandedItems, toggleItemExpa
               toggleExpanded={() => toggleItemExpanded(item.pageId)}
             />
             {hasChildren && isExpanded && (
-              <div 
-                className={styles.line} 
-                style={{ 
+              <div
+                className={styles.line}
+                style={{
                   left: `${level * 16 + 11.49}px`,
-                  top: '32px', 
+                  top: '32px'
                 }}
               />
             )}
             {hasChildren && (
-              <div className={`${styles.childrenContainer} ${isExpanded ? styles.expanded : styles.collapsed}`}>
+              <div
+                className={`${styles.childrenContainer} ${isExpanded ? styles.expanded : styles.collapsed}`}
+              >
                 <div className={styles.childrenContent}>
                   <RecursiveCategoryTree
                     items={item.children!}
@@ -145,15 +168,20 @@ function RecursiveCategoryTree({ items, level = 0, expandedItems, toggleItemExpa
   )
 }
 
-export function CategoryTree({ 
-  items, 
+export function CategoryTree({
+  items,
   level = 0,
   expandedItems,
   toggleItemExpanded
 }: CategoryTreeProps) {
-    return (
+  return (
     <div className={styles.categoryTreeWrapper}>
-      <RecursiveCategoryTree items={items} level={level} expandedItems={expandedItems} toggleItemExpanded={toggleItemExpanded} />
+      <RecursiveCategoryTree
+        items={items}
+        level={level}
+        expandedItems={expandedItems}
+        toggleItemExpanded={toggleItemExpanded}
+      />
     </div>
   )
 }

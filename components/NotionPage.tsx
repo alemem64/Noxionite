@@ -166,7 +166,7 @@ const propertyTextValue = (
   return defaultFn()
 }
 
-export function NotionPageContent({ 
+export function NotionPageContent({
   site,
   recordMap,
   error,
@@ -176,7 +176,7 @@ export function NotionPageContent({
   showTOC = false,
   hideCoverImage = false,
   parentSlug
-}: types.PageProps & { hideCoverImage?: boolean, parentSlug?: string }) {
+}: types.PageProps & { hideCoverImage?: boolean; parentSlug?: string }) {
   const router = useRouter()
   const { isDarkMode } = useDarkMode()
 
@@ -203,7 +203,12 @@ export function NotionPageContent({
         currentPath = [parentSlug]
       }
 
-      return buildPageUrl(linkedPageId, siteMap, currentPath, router.locale || localeConfig.defaultLocale)
+      return buildPageUrl(
+        linkedPageId,
+        siteMap,
+        currentPath,
+        router.locale || localeConfig.defaultLocale
+      )
     },
     [siteMap, router.asPath, router.locale, parentSlug]
   )
@@ -223,8 +228,11 @@ export function NotionPageContent({
 
   const pageInfo = siteMap?.pageInfoMap?.[pageId]
 
-  const isBlogPost =
-    !!(pageInfo && block?.type === 'page' && block?.parent_table === 'collection')
+  const isBlogPost = !!(
+    pageInfo &&
+    block?.type === 'page' &&
+    block?.parent_table === 'collection'
+  )
   const isSubPage = !pageInfo && block?.type === 'page'
   const minTableOfContentsItems = 3
   const showTableOfContents = showTOC
@@ -244,13 +252,15 @@ export function NotionPageContent({
                 isMobile={isMobile}
                 variant={isBlogPost ? 'full' : 'simple'}
                 useOriginalCoverImage={pageInfo?.useOriginalCoverImage ?? false}
-                url={router.locale && router.locale !== localeConfig.defaultLocale 
-                  ? `/${router.locale}${router.asPath}` 
-                  : router.asPath}
+                url={
+                  router.locale && router.locale !== localeConfig.defaultLocale
+                    ? `/${router.locale}${router.asPath}`
+                    : router.asPath
+                }
                 hideCoverImage={hideCoverImage}
               />
             )}
-            
+
             <NotionRenderer
               bodyClassName={cs(
                 styles.notion,
@@ -274,7 +284,7 @@ export function NotionPageContent({
               {...(site.domain ? { rootDomain: site.domain || undefined } : {})}
               {...(siteMapPageUrl && { mapPageUrl: siteMapPageUrl })}
               components={{
-                nextImage: (props: ImageProps) => (<Image {...props} priority/>),
+                nextImage: (props: ImageProps) => <Image {...props} priority />,
                 nextLink: Link,
                 Code: Code2,
                 Collection: Collection2,

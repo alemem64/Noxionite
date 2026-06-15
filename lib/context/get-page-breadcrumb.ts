@@ -40,7 +40,10 @@ export const getPageBreadcrumb = (
   }
 
   // The first breadcrumb is the site name
-  if (breadcrumbs.length > 0 && breadcrumbs[0].pageId === site.rootNotionPageId) {
+  if (
+    breadcrumbs.length > 0 &&
+    breadcrumbs[0].pageId === site.rootNotionPageId
+  ) {
     breadcrumbs[0].title = site.name
   }
 

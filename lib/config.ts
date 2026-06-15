@@ -1,9 +1,9 @@
 /**
  * Site-wide app configuration.
-*
-* This file pulls from the root "site.config.ts" as well as environment variables
-* for optional depenencies.
-*/
+ *
+ * This file pulls from the root "site.config.ts" as well as environment variables
+ * for optional depenencies.
+ */
 import { parsePageId } from 'notion-utils'
 import { type PostHogConfig } from 'posthog-js'
 import locale from '../site.locale.json'
@@ -42,7 +42,6 @@ export const inversePageUrlOverrides = invertPageUrlOverrides(pageUrlOverrides)
 
 export const environment = process.env.NODE_ENV || 'development'
 export const isDev = environment === 'development'
-
 
 // general site config
 export const name: string = getRequiredSiteConfig('name')
@@ -93,7 +92,6 @@ export const includeNotionIdInUrls: boolean = getSiteConfig(
   'includeNotionIdInUrls',
   !!isDev
 )
-
 
 export const notionDbIds: string[] = getSiteConfig('notionDbIds', [])
 

@@ -1,17 +1,22 @@
-import React from 'react';
-import styles from 'styles/components/react-bits/ShinyText.module.css';
-import { useDarkMode } from '@/lib/use-dark-mode';
+import React from 'react'
+import styles from 'styles/components/react-bits/ShinyText.module.css'
+import { useDarkMode } from '@/lib/use-dark-mode'
 
 interface ShinyTextProps {
-  text: string;
-  disabled?: boolean;
-  speed?: number;
-  className?: string;
+  text: string
+  disabled?: boolean
+  speed?: number
+  className?: string
 }
 
-const ShinyText: React.FC<ShinyTextProps> = ({ text, disabled = false, speed = 5, className = '' }) => {
-  const { isDarkMode } = useDarkMode();
-  const animationDuration = `${speed}s`;
+const ShinyText: React.FC<ShinyTextProps> = ({
+  text,
+  disabled = false,
+  speed = 5,
+  className = ''
+}) => {
+  const { isDarkMode } = useDarkMode()
+  const animationDuration = `${speed}s`
 
   return (
     <div
@@ -20,7 +25,7 @@ const ShinyText: React.FC<ShinyTextProps> = ({ text, disabled = false, speed = 5
     >
       {text}
     </div>
-  );
-};
+  )
+}
 
-export default ShinyText;
+export default ShinyText

@@ -3,7 +3,6 @@ import { useRouter } from 'next/router'
 
 import React from 'react'
 
-
 import type * as types from '@/lib/context/types'
 import { isSearchEnabled } from '@/lib/config'
 import { useTranslation } from 'next-i18next'
@@ -28,7 +27,7 @@ function ToggleThemeButton() {
 
   return (
     <button
-      className="glass-item"
+      className='glass-item'
       onClick={toggleDarkMode}
       title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
       style={{ opacity: hasMounted ? 1 : 0 }}
@@ -40,7 +39,7 @@ function ToggleThemeButton() {
 
 function MobileMenuButton({ onToggle }: { onToggle: () => void }) {
   return (
-    <button className="glass-item" onClick={onToggle} title="Toggle menu">
+    <button className='glass-item' onClick={onToggle} title='Toggle menu'>
       <IoMenuOutline />
     </button>
   )
@@ -52,24 +51,23 @@ interface BreadcrumbItem {
   href?: string
 }
 
-
 function buildPagePathFromHierarchy(
   pageId: string,
   pageInfoMap: Record<string, types.PageInfo>
 ): BreadcrumbItem[] {
   const path: BreadcrumbItem[] = []
   const visited = new Set<string>()
-  
+
   let current = pageInfoMap[pageId]
   if (!current) return path
 
   // Build path from current page up through parent structure
   const pagePath: types.PageInfo[] = []
-  
+
   while (current && !visited.has(current.pageId)) {
     visited.add(current.pageId)
     pagePath.unshift(current)
-    
+
     // Move to parent page
     if (current.parentPageId && pageInfoMap[current.parentPageId]) {
       current = pageInfoMap[current.parentPageId]
@@ -84,8 +82,8 @@ function buildPagePathFromHierarchy(
       page.type === 'Post' || page.type === 'Home'
         ? `/post/${page.slug}`
         : page.type === 'Category'
-        ? `/category/${page.slug}`
-        : `/${page.slug}`
+          ? `/category/${page.slug}`
+          : `/${page.slug}`
 
     path.push({
       title: page.title || 'Untitled',
@@ -106,99 +104,116 @@ function buildBreadcrumbsFromUrl(
   _locale?: string
 ): BreadcrumbItem[] {
   const pathSegments = asPath.split('/').filter(Boolean)
-  
+
   // Handle category pages
-    if (pathname.startsWith('/category/')) {
-      const categorySlug = pathSegments.at(-1)
-      if (categorySlug) {
-        // Find database by slug using new databaseInfoMap structure with locale key
-        const dbEntry = Object.values(siteMap.databaseInfoMap || {}).find(
-          db => db.slug === categorySlug
-        )
-        
-        if (dbEntry) {
-          // For database category pages, show: site name → database name
-          breadcrumbs.push({
+  if (pathname.startsWith('/category/')) {
+    const categorySlug = pathSegments.at(-1)
+    if (categorySlug) {
+      // Find database by slug using new databaseInfoMap structure with locale key
+      const dbEntry = Object.values(siteMap.databaseInfoMap || {}).find(
+        (db) => db.slug === categorySlug
+      )
+
+      if (dbEntry) {
+        // For database category pages, show: site name → database name
+        breadcrumbs.push({
+          title: dbEntry.name,
+          pageInfo: {
+            pageId: dbEntry.id,
             title: dbEntry.name,
-            pageInfo: {
-              pageId: dbEntry.id,
-              title: dbEntry.name,
-              type: 'Category',
-              slug: dbEntry.slug
-            } as types.PageInfo,
-            href: `/category/${categorySlug}`
-          })
-        } else {
-          // Find regular category page
-          const categoryPage = Object.values(siteMap.pageInfoMap).find(
-            p => p.slug === categorySlug && p.type === 'Category'
+            type: 'Category',
+            slug: dbEntry.slug
+          } as types.PageInfo,
+          href: `/category/${categorySlug}`
+        })
+      } else {
+        // Find regular category page
+        const categoryPage = Object.values(siteMap.pageInfoMap).find(
+          (p) => p.slug === categorySlug && p.type === 'Category'
+        )
+        if (categoryPage) {
+          breadcrumbs.push(
+            ...buildPagePathFromHierarchy(
+              categoryPage.pageId,
+              siteMap.pageInfoMap
+            )
           )
-          if (categoryPage) {
-            breadcrumbs.push(...buildPagePathFromHierarchy(categoryPage.pageId, siteMap.pageInfoMap))
-          }
         }
       }
-      return breadcrumbs
     }
-  
+    return breadcrumbs
+  }
+
   // Handle post pages
   const postIndex = pathSegments.indexOf('post')
   if (postIndex !== -1) {
     const postSegments = pathSegments.slice(postIndex + 1)
     let currentPath = '/post'
     let isFirst = true
-    
+
     for (const segment of postSegments) {
       currentPath += `/${segment}`
-      
+
       let pageInfo: types.PageInfo | undefined
       let title: string
-      
+
       if (isFirst) {
         // Root page - find by slug
-        pageInfo = Object.values(siteMap.pageInfoMap).find(p => p.slug === segment)
+        pageInfo = Object.values(siteMap.pageInfoMap).find(
+          (p) => p.slug === segment
+        )
         title = pageInfo?.title || 'Untitled'
         isFirst = false
       } else {
         // Subpage - extract page ID and get actual title from recordMap
         let extractedPageId: string
-        
+
         if (segment.includes('-')) {
           // Extract full UUID using regex
-          const uuidRegex = /([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$/i
+          const uuidRegex =
+            /([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$/i
           const match = segment.match(uuidRegex)
           if (match) {
             extractedPageId = match[1]
-            
+
             // Try to get title from recordMap first, then fallback to siteMap
             const block = getBlockValue(recordMap?.block?.[extractedPageId])
-            title = (block && recordMap ? getBlockTitle(block, recordMap) : undefined) || 
-                   siteMap.pageInfoMap[extractedPageId]?.title || 
-                   'Untitled'
+            title =
+              (block && recordMap
+                ? getBlockTitle(block, recordMap)
+                : undefined) ||
+              siteMap.pageInfoMap[extractedPageId]?.title ||
+              'Untitled'
           } else {
             extractedPageId = segment
             const block = getBlockValue(recordMap?.block?.[extractedPageId])
-            title = (block && recordMap ? getBlockTitle(block, recordMap) : undefined) || 
-                   siteMap.pageInfoMap[extractedPageId]?.title || 
-                   'Untitled'
+            title =
+              (block && recordMap
+                ? getBlockTitle(block, recordMap)
+                : undefined) ||
+              siteMap.pageInfoMap[extractedPageId]?.title ||
+              'Untitled'
           }
         } else {
           extractedPageId = segment
           const block = getBlockValue(recordMap?.block?.[extractedPageId])
-          title = (block && recordMap ? getBlockTitle(block, recordMap) : undefined) || 
-                 siteMap.pageInfoMap[extractedPageId]?.title || 
-                 'Untitled'
+          title =
+            (block && recordMap
+              ? getBlockTitle(block, recordMap)
+              : undefined) ||
+            siteMap.pageInfoMap[extractedPageId]?.title ||
+            'Untitled'
         }
       }
-      
+
       breadcrumbs.push({
         title,
-        pageInfo: pageInfo || { pageId: segment, title } as types.PageInfo,
+        pageInfo: pageInfo || ({ pageId: segment, title } as types.PageInfo),
         href: currentPath
       })
     }
   }
-  
+
   return breadcrumbs
 }
 
@@ -228,8 +243,6 @@ export const TopNav: React.FC<TopNavProps> = ({
         href: '/'
       }
     ]
-
-
 
     // Handle 404 page
     if (pathname === '/404') {
@@ -291,24 +304,28 @@ export const TopNav: React.FC<TopNavProps> = ({
 
     // Build breadcrumbs including database structure
     const pageInfo = siteMap.pageInfoMap[pageId]
-    
+
     if (!pageInfo) {
       // Fallback: Build from URL structure
-      return buildBreadcrumbsFromUrl(asPath, pathname, breadcrumbs, siteMap, recordMap, router.locale)
+      return buildBreadcrumbsFromUrl(
+        asPath,
+        pathname,
+        breadcrumbs,
+        siteMap,
+        recordMap,
+        router.locale
+      )
     }
 
     // Build complete breadcrumb path including database
     const completeBreadcrumbs = [...breadcrumbs]
-    
 
-    
     // Check if this page belongs to a database
     const locale = router.locale || siteLocaleConfig.defaultLocale
     const dbKey = `${pageInfo.parentDbId}_${locale}`
     const dbInfo = pageInfo.parentDbId ? siteMap.databaseInfoMap?.[dbKey] : null
-    
-    if (dbInfo) {
 
+    if (dbInfo) {
       completeBreadcrumbs.push({
         title: dbInfo.name,
         pageInfo: {
@@ -328,7 +345,7 @@ export const TopNav: React.FC<TopNavProps> = ({
   }, [siteMap, pageId, router, recordMap, t])
 
   return (
-    <nav className="glass-nav">
+    <nav className='glass-nav'>
       <div
         style={{
           display: 'flex',
@@ -340,11 +357,11 @@ export const TopNav: React.FC<TopNavProps> = ({
         {isSideNavCollapsed && onToggleMobileMenu && (
           <MobileMenuButton onToggle={onToggleMobileMenu} />
         )}
-        <div className="glass-breadcrumb">
-          <Breadcrumb 
-            breadcrumbs={breadcrumbs} 
-            isMobile={isMobile} 
-            pathname={router.pathname} 
+        <div className='glass-breadcrumb'>
+          <Breadcrumb
+            breadcrumbs={breadcrumbs}
+            isMobile={isMobile}
+            pathname={router.pathname}
           />
         </div>
       </div>

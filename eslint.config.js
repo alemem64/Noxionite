@@ -4,6 +4,12 @@ import nextPlugin from '@next/eslint-plugin-next'
 export default [
   ...config,
   {
+    files: ['**/*.cjs'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off'
+    }
+  },
+  {
     files: ['**/*.ts', '**/*.tsx'],
     plugins: {
       '@next/next': nextPlugin

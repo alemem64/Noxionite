@@ -1,7 +1,7 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 import { useAppContext } from '@/lib/context/app-context'
-import Magnet from './react-bits/Magnet';
+import Magnet from './react-bits/Magnet'
 import { graphControl } from '@/components/graph/utils/graph-control'
 
 import styles from '@/styles/components/TagButton.module.css'
@@ -22,8 +22,9 @@ export function TagButton({ tag }: TagButtonProps) {
   // Get tag count from siteMap using existing tag graph data
   const getTagCount = () => {
     try {
-      const count = siteMap?.tagGraphData?.locales?.[locale]?.tagCounts?.[tag] || 0;
-      return count;
+      const count =
+        siteMap?.tagGraphData?.locales?.[locale]?.tagCounts?.[tag] || 0
+      return count
     } catch (err) {
       console.warn('Error accessing tag count:', err)
       return 0
@@ -31,14 +32,14 @@ export function TagButton({ tag }: TagButtonProps) {
   }
 
   const tagCount = getTagCount()
-  
+
   const handleClick = () => {
     void router.push(`/tag/${encodeURIComponent(tag)}`)
   }
 
   const handleMouseEnter = () => {
-    graphControl.changeViewAndFocusNode('tag_view', tag, 'sidenav');
-  };
+    graphControl.changeViewAndFocusNode('tag_view', tag, 'sidenav')
+  }
 
   return (
     <Magnet
@@ -46,23 +47,21 @@ export function TagButton({ tag }: TagButtonProps) {
       padding={3}
       disabled={false}
       magnetStrength={3}
-      activeTransition="transform 0.3s ease-out"
-      inactiveTransition="transform 0.5s ease-in-out"
-      wrapperClassName=""
-      innerClassName=""
+      activeTransition='transform 0.3s ease-out'
+      inactiveTransition='transform 0.5s ease-in-out'
+      wrapperClassName=''
+      innerClassName=''
       style={{}}
     >
       <button
         className={`${styles.tagButton} ${tagCount > 0 ? styles.hasBadge : ''}`}
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
-        type="button"
+        type='button'
       >
         <div className={styles.tagContent}>
           <span className={styles.tagName}># {tag}</span>
-          {tagCount > 0 && (
-            <span className={styles.tagCount}>{tagCount}</span>
-          )}
+          {tagCount > 0 && <span className={styles.tagCount}>{tagCount}</span>}
         </div>
       </button>
     </Magnet>

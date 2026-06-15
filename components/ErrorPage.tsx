@@ -15,12 +15,20 @@ interface ErrorPageProps {
 export function ErrorPage({ statusCode, site }: ErrorPageProps) {
   const { t } = useTranslation('common')
   const router = useRouter()
-  const title = statusCode === 404 ? t('error.404.title') : t('error.default.title')
-  const description = statusCode === 404 ? t('error.404.description') : t('error.default.description')
+  const title =
+    statusCode === 404 ? t('error.404.title') : t('error.default.title')
+  const description =
+    statusCode === 404
+      ? t('error.404.description')
+      : t('error.default.description')
 
   return (
     <>
-      <PageHead site={site} title={title} url={`/${router.locale}${router.asPath === '/' ? '' : router.asPath}`} />
+      <PageHead
+        site={site}
+        title={title}
+        url={`/${router.locale}${router.asPath === '/' ? '' : router.asPath}`}
+      />
       <div className={styles.errorContainer}>
         <div className={styles.errorContent}>
           <h1 className={styles.errorTitle}>{title}</h1>

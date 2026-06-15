@@ -28,7 +28,9 @@ function normalizeMapBox(mapBox: any) {
   }
 }
 
-function normalizeRecordMap<T extends RecordMapLike | undefined>(recordMap: T): T {
+function normalizeRecordMap<T extends RecordMapLike | undefined>(
+  recordMap: T
+): T {
   if (!recordMap) {
     return recordMap
   }
@@ -62,16 +64,12 @@ function normalizeRecordMapResponse<T extends { recordMap?: RecordMapLike }>(
 }
 
 class NoxioniteNotionAPI extends NotionAPI {
-  override async getPage(
-    ...args: Parameters<NotionAPI['getPage']>
-  ) {
+  override async getPage(...args: Parameters<NotionAPI['getPage']>) {
     const recordMap = await super.getPage(...args)
     return normalizeRecordMap(recordMap)
   }
 
-  override async getBlocks(
-    ...args: Parameters<NotionAPI['getBlocks']>
-  ) {
+  override async getBlocks(...args: Parameters<NotionAPI['getBlocks']>) {
     const response = await super.getBlocks(...args)
     return normalizeRecordMapResponse(response)
   }
@@ -83,9 +81,7 @@ class NoxioniteNotionAPI extends NotionAPI {
     return normalizeRecordMapResponse(response)
   }
 
-  override async search(
-    ...args: Parameters<NotionAPI['search']>
-  ) {
+  override async search(...args: Parameters<NotionAPI['search']>) {
     const response = await super.search(...args)
     return normalizeRecordMapResponse(response)
   }

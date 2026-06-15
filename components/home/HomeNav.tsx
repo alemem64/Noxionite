@@ -11,16 +11,30 @@ interface HomeNavProps {
   onNavClick: (tab: string, pageId?: string) => void
 }
 
-export default function HomeNav({ homePages, activeTab, onNavClick }: HomeNavProps) {
+export default function HomeNav({
+  homePages,
+  activeTab,
+  onNavClick
+}: HomeNavProps) {
   const { t } = useTranslation('common')
   const navItems = ['recentPosts', 'graphView', 'allTags']
   const allNavItems = [
-    ...homePages.map((page) => ({ title: page.title, pageId: page.pageId, key: page.pageId })),
-    ...navItems.map((item) => ({ title: t(item), pageId: undefined, key: item }))
+    ...homePages.map((page) => ({
+      title: page.title,
+      pageId: page.pageId,
+      key: page.pageId
+    })),
+    ...navItems.map((item) => ({
+      title: t(item),
+      pageId: undefined,
+      key: item
+    }))
   ]
 
   const [hoveredItemIndex, setHoveredItemIndex] = useState<number | null>(null)
-  const [pillStyle, setPillStyle] = useState<React.CSSProperties>({ opacity: 0 })
+  const [pillStyle, setPillStyle] = useState<React.CSSProperties>({
+    opacity: 0
+  })
 
   const navRef = useRef<HTMLElement>(null)
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
@@ -87,8 +101,13 @@ export default function HomeNav({ homePages, activeTab, onNavClick }: HomeNavPro
       {allNavItems.map((item, index) => (
         <button
           key={item.key}
-          ref={(el) => { itemRefs.current[index] = el }}
-          className={cs(styles.navItem, activeTab === item.key && styles.active)}
+          ref={(el) => {
+            itemRefs.current[index] = el
+          }}
+          className={cs(
+            styles.navItem,
+            activeTab === item.key && styles.active
+          )}
           onClick={() => onNavClick(item.key, item.pageId)}
         >
           {item.title}

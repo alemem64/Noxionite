@@ -15,11 +15,16 @@ export interface TagPageProps {
   tag: string
 }
 
-export default function TagSlugPage({ site, siteMap, tag, isMobile }: TagPageProps & { isMobile?: boolean }) {
+export default function TagSlugPage({
+  site,
+  siteMap,
+  tag,
+  isMobile
+}: TagPageProps & { isMobile?: boolean }) {
   const pageProps: types.PageProps = {
     site,
     siteMap,
-    pageId: `tag-${tag}`,
+    pageId: `tag-${tag}`
   }
 
   return <TagPage pageProps={pageProps} tag={tag} isMobile={isMobile} />
@@ -47,7 +52,7 @@ export const getStaticPaths: GetStaticPaths = async (): Promise<any> => {
         if (tag && tag.trim()) {
           paths.push({
             params: { tag },
-            locale,
+            locale
           })
         }
       })
@@ -55,18 +60,21 @@ export const getStaticPaths: GetStaticPaths = async (): Promise<any> => {
 
     return {
       paths,
-      fallback: 'blocking',
+      fallback: 'blocking'
     }
   } catch (err) {
     console.error('Error generating tag paths:', err)
     return {
       paths: [],
-      fallback: 'blocking',
+      fallback: 'blocking'
     }
   }
 }
 
-export const getStaticProps: GetStaticProps<TagPageProps, { tag: string }> = async (context) => {
+export const getStaticProps: GetStaticProps<
+  TagPageProps,
+  { tag: string }
+> = async (context) => {
   const { tag } = context.params!
   const locale = context.locale!
 
@@ -75,21 +83,25 @@ export const getStaticProps: GetStaticProps<TagPageProps, { tag: string }> = asy
 
     // Allow UTF-8 characters in tags
     const decodedTag = decodeURIComponent(tag)
-    
+
     return {
       props: {
-        ...(await serverSideTranslations(locale, ['common', 'languages'], nextI18NextConfig)),
+        ...(await serverSideTranslations(
+          locale,
+          ['common', 'languages'],
+          nextI18NextConfig
+        )),
         site: siteMap.site,
         siteMap,
-        tag: decodedTag,
+        tag: decodedTag
       },
-      revalidate: site.isr?.revalidate ?? 60,
+      revalidate: site.isr?.revalidate ?? 60
     }
   } catch (err) {
     console.error('Error fetching tag page:', err)
     return {
       notFound: true,
-      revalidate: site.isr?.revalidate ?? 60,
+      revalidate: site.isr?.revalidate ?? 60
     }
   }
 }
