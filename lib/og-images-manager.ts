@@ -281,9 +281,10 @@ export async function generateSocialImage(
 export class SocialImageManager {
   private previousSiteMap: SiteMap | null = null;
   private previousTagGraph: any = null;
+  private stateLoadPromise: Promise<void>;
 
   constructor() {
-    void this.loadPreviousState();
+    this.stateLoadPromise = this.loadPreviousState();
   }
 
   private async loadPreviousState() {
@@ -487,6 +488,9 @@ export class SocialImageManager {
   }
 
   async syncSocialImages(siteMap: SiteMap, tagGraph: any) {
+    await loadServerModules();
+    await this.stateLoadPromise;
+
     console.log('🔄 Starting social images sync...');
     console.log(`📊 SiteMap: ${Object.keys(siteMap.pageInfoMap || {}).length} pages`);
     console.log(`📊 TagGraph: ${Object.keys(tagGraph?.locales || {}).length} locales`);
@@ -494,7 +498,7 @@ export class SocialImageManager {
     const syncStartTime = Date.now();
     
     // Force regeneration for testing - check if we're in development
-    const forceRegenerate = process.env.NODE_ENV === 'development';
+    const forceRegenerate = process.env.NOXIONITE_FORCE_SOCIAL_IMAGES === 'true';
     
     if (!this.previousSiteMap && !forceRegenerate) {
       console.log('📋 First run detected, skipping processing (build-time handles this)');

@@ -9,7 +9,7 @@ import { isSearchEnabled } from '@/lib/config'
 import { useTranslation } from 'next-i18next'
 
 import { useDarkMode } from '@/lib/use-dark-mode'
-import { getBlockTitle } from 'notion-utils'
+import { getBlockTitle, getBlockValue } from 'notion-utils'
 
 import siteConfig from '../site.config'
 import siteLocaleConfig from '../site.locale.json'
@@ -171,21 +171,21 @@ function buildBreadcrumbsFromUrl(
             extractedPageId = match[1]
             
             // Try to get title from recordMap first, then fallback to siteMap
-            const block = recordMap?.block?.[extractedPageId]?.value
-            title = (block ? getBlockTitle(block, recordMap) : undefined) || 
+            const block = getBlockValue(recordMap?.block?.[extractedPageId])
+            title = (block && recordMap ? getBlockTitle(block, recordMap) : undefined) || 
                    siteMap.pageInfoMap[extractedPageId]?.title || 
                    'Untitled'
           } else {
             extractedPageId = segment
-            const block = recordMap?.block?.[extractedPageId]?.value
-            title = (block ? getBlockTitle(block, recordMap) : undefined) || 
+            const block = getBlockValue(recordMap?.block?.[extractedPageId])
+            title = (block && recordMap ? getBlockTitle(block, recordMap) : undefined) || 
                    siteMap.pageInfoMap[extractedPageId]?.title || 
                    'Untitled'
           }
         } else {
           extractedPageId = segment
-          const block = recordMap?.block?.[extractedPageId]?.value
-          title = (block ? getBlockTitle(block, recordMap) : undefined) || 
+          const block = getBlockValue(recordMap?.block?.[extractedPageId])
+          title = (block && recordMap ? getBlockTitle(block, recordMap) : undefined) || 
                  siteMap.pageInfoMap[extractedPageId]?.title || 
                  'Untitled'
         }

@@ -1,3 +1,5 @@
+import { getBlockValue } from 'notion-utils'
+
 import type * as types from './types'
 
 export const getPageBreadcrumb = (
@@ -11,7 +13,7 @@ export const getPageBreadcrumb = (
   }
 
   const blockId = startPageId || Object.keys(recordMap.block)[0]
-  const block = recordMap.block[blockId]?.value
+  const block = getBlockValue(recordMap.block[blockId])
 
   if (!block) {
     return null
@@ -19,7 +21,7 @@ export const getPageBreadcrumb = (
 
   const breadcrumbs = []
 
-  let currentBlock = block
+  let currentBlock: types.Block | undefined = block
   while (currentBlock) {
     const title = currentBlock.properties?.title?.[0]?.[0]
     const page = pageInfo?.pageId === currentBlock.id ? pageInfo : null
@@ -34,7 +36,7 @@ export const getPageBreadcrumb = (
       break
     }
 
-    currentBlock = recordMap.block[currentBlock.parent_id]?.value
+    currentBlock = getBlockValue(recordMap.block[currentBlock.parent_id])
   }
 
   // The first breadcrumb is the site name

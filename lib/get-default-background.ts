@@ -4,7 +4,7 @@ export const getDefaultBackgroundUrl = (): string => {
 }
 
 export const getSupportedBackgroundFormats = (): string[] => {
-  return ['webp', 'jpg', 'jpeg', 'png', 'avif']
+  return ['png']
 }
 
 export const detectBestBackgroundFormat = async (): Promise<string> => {

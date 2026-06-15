@@ -1,6 +1,6 @@
 import type { ExtendedRecordMap } from 'notion-types'
 import { type NextApiRequest, type NextApiResponse } from 'next'
-import { getBlockTitle } from 'notion-utils'
+import { getBlockTitle, getBlockValue } from 'notion-utils'
 
 import type * as types from '../../lib/context/types'
 import { buildPageUrl } from '../../lib/context/build-page-url'
@@ -51,7 +51,7 @@ export default async function searchNotion(
 
   const augmentedResults = results.results
     .map((result) => {
-      const block = recordMap.block[result.id]?.value
+      const block = getBlockValue(recordMap.block[result.id])
       if (!block) {
         return null
       }

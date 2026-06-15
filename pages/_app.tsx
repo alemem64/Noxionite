@@ -33,7 +33,7 @@ import { mapImageUrl } from '@/lib/map-image-url'
 import { AppContext } from '@/lib/context/app-context'
 import { Noto_Sans_KR } from 'next/font/google'
 import { appWithTranslation, useTranslation } from 'next-i18next'
-import { getBlockTitle } from 'notion-utils'
+import { getBlockTitle, getBlockValue } from 'notion-utils'
 import { PageHead } from '@/components/PageHead'
 import { Analytics } from '@vercel/analytics/next'
 import localeConfig from '../site.locale.json'
@@ -135,7 +135,9 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
   }, [isMobile, mounted])
 
   const { siteMap, recordMap, pageId } = pageProps
-  const pageBlockForCover = pageId ? recordMap?.block?.[pageId]?.value : undefined
+  const pageBlockForCover = pageId
+    ? getBlockValue(recordMap?.block?.[pageId])
+    : undefined
   const pageCover = pageBlockForCover?.format?.page_cover
   
   // Check for category page cover image from pageInfo
@@ -159,7 +161,7 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
     if (!isBlogPost) return false
     let headerCount = 0
     for (const blockWrapper of Object.values(recordMap.block)) {
-      const blockData = (blockWrapper as any)?.value
+      const blockData = getBlockValue(blockWrapper)
       if (blockData?.type === 'header' || blockData?.type === 'sub_header' || blockData?.type === 'sub_sub_header') {
         headerCount++
       }
@@ -200,7 +202,9 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
     pageTitle = pageProps.site?.name || '';
     pageDescription = pageProps.site?.description || '';
   } else if (pathname === '/post/[...slug]') {
-    const block = pageProps.pageId && pageProps.recordMap?.block?.[pageProps.pageId]?.value;
+    const block = pageProps.pageId
+      ? getBlockValue(pageProps.recordMap?.block?.[pageProps.pageId])
+      : undefined;
     if (block && pageProps.recordMap) {
       pageTitle = getBlockTitle(block, pageProps.recordMap);
       

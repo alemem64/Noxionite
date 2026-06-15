@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import { getBlockValue } from 'notion-utils'
 
 import styles from 'styles/components/home.module.css'
 import localeConfig from '../../site.locale.json'
@@ -115,7 +116,7 @@ export function Home({
     
     let headerCount = 0
     for (const blockWrapper of Object.values(recordMap.block)) {
-      const blockData = (blockWrapper as any)?.value
+      const blockData = getBlockValue(blockWrapper)
       if (blockData?.type === 'header' || blockData?.type === 'sub_header' || blockData?.type === 'sub_sub_header') {
         headerCount++
       }

@@ -37,7 +37,6 @@ async function main() {
 
   // Collect all image generation tasks for parallel processing
   const imageTasks = [];
-  let taskCount = 0;
 
   for (const locale of localeList) {
     console.log(`🌍 Processing locale: ${locale}`);
@@ -147,7 +146,6 @@ async function main() {
       }
     }
     
-    taskCount += localeTaskCount;
     console.log(`   ✅ ${locale}: ${localeTaskCount} images scheduled`);
   }
 
@@ -197,8 +195,30 @@ async function main() {
     // Clean up server
     if (server) {
       console.log('🔌 Closing local server...');
-      server.close();
-    
+      await new Promise((resolve) => {
+        let settled = false;
+        const finish = () => {
+          if (!settled) {
+            settled = true;
+            resolve();
+          }
+        };
+
+        server.close((err) => {
+          if (err) {
+            console.warn('⚠️  Failed to close local server cleanly:', err);
+          }
+          finish();
+        });
+        server.closeIdleConnections?.();
+        server.closeAllConnections?.();
+
+        setTimeout(() => {
+          server.closeIdleConnections?.();
+          server.closeAllConnections?.();
+          finish();
+        }, 1000).unref?.();
+      });
     }
   }
 }

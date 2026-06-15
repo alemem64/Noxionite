@@ -1,5 +1,5 @@
 import type { ExtendedRecordMap, PageBlock } from 'notion-types'
-import { getPageProperty } from 'notion-utils'
+import { getBlockValue, getPageProperty } from 'notion-utils'
 
 import type { CanonicalPageMap, PageInfo, SiteMap, DatabaseInfo } from './types'
 import * as config from '../config'
@@ -13,7 +13,9 @@ function parseRelationProperty(
   block: PageBlock,
   collectionRecordMap: ExtendedRecordMap
 ): string[] {
-  const collection = Object.values(collectionRecordMap.collection)[0]?.value
+  const collection =
+    getBlockValue(collectionRecordMap.collection[block.parent_id]) ||
+    getBlockValue(Object.values(collectionRecordMap.collection)[0])
   if (!collection) {
     return []
   }
@@ -169,10 +171,12 @@ async function getAllPagesFromDatabase(
       return {}
     }
 
+    const collectionView = getBlockValue(recordMap.collection_view[collectionViewId])
+
     const collectionData = await notion.getCollectionData(
       collectionId,
       collectionViewId,
-      { type: 'table' }
+      collectionView || { type: 'table' }
     )
 
     let blockIds: string[] = []
@@ -196,7 +200,7 @@ async function getAllPagesFromDatabase(
     const collectionRecordMap = collectionData.recordMap as ExtendedRecordMap
 
     for (const pageId of pageIds) {
-      const block = collectionRecordMap.block[pageId]?.value
+      const block = getBlockValue(collectionRecordMap.block[pageId])
       if (!block) {
         console.warn(`WARN: No block found for pageId: ${pageId}`)
         continue

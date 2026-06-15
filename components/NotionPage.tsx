@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic'
 import Image, { type ImageProps } from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { formatDate } from 'notion-utils'
+import { formatDate, getBlockValue } from 'notion-utils'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { NotionRenderer } from 'react-notion-x'
 
@@ -209,7 +209,7 @@ export function NotionPageContent({
   )
 
   const { block } = useMemo(() => {
-    const block = recordMap?.block?.[pageId!]?.value
+    const block = getBlockValue(recordMap?.block?.[pageId!])
     return { block }
   }, [pageId, recordMap])
 

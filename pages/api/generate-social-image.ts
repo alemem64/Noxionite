@@ -44,14 +44,14 @@ async function handler(
       try {
         // Import notion API client and utilities
         const { notion } = await import('@/lib/notion-api')
-        const { getBlockTitle } = await import('notion-utils')
+        const { getBlockTitle, getBlockValue } = await import('notion-utils')
         const { mapImageUrl } = await import('@/lib/map-image-url')
         
         // Fetch the actual page data from Notion
         const recordMap = await notion.getPage(pageId)
         
         // Extract data from the fetched page
-        const block = recordMap.block[pageId]?.value
+        const block = getBlockValue(recordMap.block[pageId])
         if (block) {
           const title = getBlockTitle(block, recordMap)
           const pageCover = block.format?.page_cover

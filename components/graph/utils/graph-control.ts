@@ -8,6 +8,7 @@ import type { GraphViewType } from '../types/graph.types';
 import { GRAPH_CONFIG } from '../utils/graphConfig';
 import type { SiteMap } from '@/lib/context/types';
 import { parseUrlPathname } from '@/lib/context/url-parser';
+import { getBlockValue } from 'notion-utils';
 
 export interface GraphControlMessage {
   type: 'fitToHome' | 'focusNode' | 'focusNodes' | 'changeView' | 'highlightNodes' | 'clearHighlight' | 'focusBySlug';
@@ -93,12 +94,13 @@ class GraphControlAPI {
 
 
     // If we have recordMap, use it to get tags like PostHeader.tsx does
-    if (this.recordMap && this.recordMap[pageInfo.pageId]) {
-      const block = this.recordMap[pageInfo.pageId];
+    const blockWrapper =
+      this.recordMap?.block?.[pageInfo.pageId] || this.recordMap?.[pageInfo.pageId];
+    const block = getBlockValue(blockWrapper);
 
       
-      if (block?.value?.properties) {
-        const properties = block.value.properties;
+    if (block?.properties) {
+        const properties = block.properties;
 
         
         // Check all possible tag property names
@@ -153,7 +155,6 @@ class GraphControlAPI {
 
           return tags;
         }
-      }
     }
 
     // Fallback to pageInfo.tags if recordMap is not available

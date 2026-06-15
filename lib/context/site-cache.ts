@@ -7,6 +7,16 @@ let lastUpdated = 0
 let cacheUpdatePromise: Promise<SiteMap> | null = null
 
 const CACHE_DURATION_MS = 60_000 // 60 seconds
+const SKIP_SOCIAL_SYNC_LIFECYCLES = new Set(['build', 'postbuild'])
+
+function shouldSyncSocialImages() {
+  return (
+    typeof window === 'undefined' &&
+    process.env.NODE_ENV !== 'development' &&
+    !SKIP_SOCIAL_SYNC_LIFECYCLES.has(process.env.npm_lifecycle_event || '') &&
+    process.env.NEXT_PHASE !== 'phase-production-build'
+  )
+}
 
 async function fetchAndCacheSiteMap(): Promise<SiteMap> {
   
@@ -16,7 +26,7 @@ async function fetchAndCacheSiteMap(): Promise<SiteMap> {
 
   
   // Trigger social image sync after site map update (server-side only)
-  if (typeof window === 'undefined') {
+  if (shouldSyncSocialImages()) {
     void (async () => {
       try {
         const { syncSocialImagesWithSiteMap } = await import('../og-images-manager')
