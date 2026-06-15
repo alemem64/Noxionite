@@ -66,7 +66,9 @@ export function collectSitemapEntries(siteMap: SiteMap): SitemapEntry[] {
     }
   }
 
-  return Array.from(entries.values()).sort((a, b) => a.loc.localeCompare(b.loc))
+  return Array.from(entries.values()).toSorted((a, b) =>
+    a.loc.localeCompare(b.loc)
+  )
 }
 
 export function renderSitemapXml(siteMap: SiteMap): string {

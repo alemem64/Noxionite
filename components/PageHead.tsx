@@ -17,13 +17,20 @@ export function PageHead({
   image?: string
   url?: string
 }) {
-  const canonicalUrl = absoluteUrl(url || '/')
-  const socialImageUrl = absoluteUrl(image || getSocialImageUrl(url || '/'))
-  const rssFeedUrl = absoluteUrl('/feed')
-  const pageType = url?.includes('/post/') ? 'article' : 'website'
-
   title = title || site?.name || config.name
   description = description || site?.description || config.description
+
+  const canonicalUrl = absoluteUrl(url || '/')
+  const rssFeedUrl = absoluteUrl('/feed')
+  const pageType = url?.includes('/post/') ? 'article' : 'website'
+  const socialImageUrl = absoluteUrl(
+    image ||
+      getSocialImageUrl(url || '/', {
+        title,
+        description,
+        type: pageType
+      })
+  )
 
   return (
     <Head>
@@ -81,7 +88,7 @@ export function PageHead({
           <meta property='og:image:secure_url' content={socialImageUrl} />
           <meta property='og:image:width' content='1200' />
           <meta property='og:image:height' content='630' />
-          <meta property='og:image:type' content='image/jpeg' />
+          <meta property='og:image:type' content='image/png' />
           <meta property='og:image:alt' content={title} />
         </>
       ) : (

@@ -10,6 +10,17 @@ import handler from 'serve-handler'
 
 async function main() {
   console.log('🚀 Starting social images generation...')
+
+  if (
+    process.env.VERCEL === '1' &&
+    process.env.GENERATE_STATIC_OG_IMAGES !== '1'
+  ) {
+    console.log(
+      '⏭️  Skipping static social image generation on Vercel; /api/og generates Open Graph images without Chromium.'
+    )
+    return
+  }
+
   const startTime = Date.now()
 
   const siteMap = await getCachedSiteMap()

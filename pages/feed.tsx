@@ -30,7 +30,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 
   const posts = Object.values(siteMap.pageInfoMap)
     .filter((pageInfo) => pageInfo.public && pageInfo.type === 'Post')
-    .sort((a, b) => {
+    .toSorted((a, b) => {
       const aTime = a.date ? new Date(a.date).getTime() : 0
       const bTime = b.date ? new Date(b.date).getTime() : 0
       return bTime - aTime
@@ -49,7 +49,13 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     const date = pageInfo.date
       ? new Date(pageInfo.date)
       : new Date(siteMap.lastUpdated)
-    const socialImageUrl = absoluteUrl(getSocialImageUrl(pageUrl))
+    const socialImageUrl = absoluteUrl(
+      getSocialImageUrl(pageUrl, {
+        title,
+        description,
+        type: 'article'
+      })
+    )
 
     feed.item({
       title,
@@ -59,7 +65,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
       enclosure: socialImageUrl
         ? {
             url: socialImageUrl,
-            type: 'image/jpeg'
+            type: 'image/png'
           }
         : undefined
     })

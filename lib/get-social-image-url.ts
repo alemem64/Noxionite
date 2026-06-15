@@ -1,60 +1,40 @@
-import { parseUrlPathname } from './context/url-parser'
-import siteLocale from '../site.locale.json'
+import * as config from './config'
 
-export function getSocialImageUrl(url: string): string | null {
+export interface SocialImageUrlOptions {
+  title?: string | null
+  description?: string | null
+  type?: 'article' | 'website'
+}
+
+export function getSocialImageUrl(
+  url: string,
+  options: SocialImageUrlOptions = {}
+): string {
+  const params = new URLSearchParams()
+
+  params.set('path', normalizePath(url))
+  params.set('title', normalizeText(options.title) || config.name)
+  params.set(
+    'description',
+    normalizeText(options.description) || config.description
+  )
+  params.set(
+    'type',
+    options.type || (url.includes('/post/') ? 'article' : 'website')
+  )
+
+  return `/api/og?${params.toString()}`
+}
+
+function normalizePath(url: string): string {
   try {
-    // Parse URL to extract routing information
-    const parsedUrl = parseUrlPathname(url)
-
-    const locale = parsedUrl.locale || siteLocale.defaultLocale
-
-    let folder: string
-    let targetSlug: string
-
-    // Determine folder and target slug based on parsed URL
-    if (parsedUrl.isRoot) {
-      folder = 'root'
-      targetSlug = 'root'
-    } else if (parsedUrl.isPost) {
-      folder = 'post'
-      targetSlug = parsedUrl.isSubpage ? parsedUrl.subpage : parsedUrl.slug
-    } else if (parsedUrl.isCategory) {
-      folder = 'category'
-      targetSlug = parsedUrl.slug
-    } else if (parsedUrl.isAllTags) {
-      folder = 'all-tags'
-      targetSlug = 'all-tags'
-    } else if (parsedUrl.isTag) {
-      folder = 'tag'
-      targetSlug = encodeURIComponent(parsedUrl.slug)
-    } else {
-      folder = 'root'
-      targetSlug = 'root'
-    }
-
-    // For subpages, always use on-demand generation via API
-    if (parsedUrl.isSubpage) {
-      return `/api/generate-social-image?path=${encodeURIComponent(url)}`
-    }
-
-    // For regular pages, check if static image exists
-    // Special handling for all-tags to use direct filename instead of subdirectory
-    const specificImagePath =
-      folder === 'all-tags'
-        ? `/social-images/${locale}/${targetSlug}.jpg`
-        : `/social-images/${locale}/${folder}/${targetSlug}.jpg`
-
-    // For root pages, use the locale-independent path
-    if (folder === 'root') {
-      return `/social-images/root.jpg`
-    }
-
-    // Return the specific image path for regular pages
-
-    return specificImagePath
-  } catch (err) {
-    console.error('[getSocialImageUrl] Error:', err)
-    // Return root as fallback using locale-independent path
-    return `/social-images/root.jpg`
+    const parsedUrl = new URL(url, config.host)
+    return `${parsedUrl.pathname}${parsedUrl.search}`
+  } catch {
+    return url || '/'
   }
+}
+
+function normalizeText(value?: string | null): string {
+  return (value || '').replace(/\s+/g, ' ').trim().slice(0, 180)
 }
