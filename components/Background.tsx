@@ -41,7 +41,11 @@ const getAverageLuminance = (imgSrc: string): Promise<number> => {
       const imageData = ctx.getImageData(0, 0, 1, 1).data
       if (imageData && imageData.length >= 3) {
         const [r, g, b] = imageData
-        if (typeof r === 'number' && typeof g === 'number' && typeof b === 'number') {
+        if (
+          typeof r === 'number' &&
+          typeof g === 'number' &&
+          typeof b === 'number'
+        ) {
           const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
           resolve(luminance)
         } else {
@@ -66,12 +70,15 @@ interface BackgroundProps {
 function Background({ source, scrollProgress = 0 }: BackgroundProps) {
   const { isDarkMode } = useDarkMode()
   const [overlayOpacity, setOverlayOpacity] = useState(0.4)
-  const [backgroundImageUrl, setBackgroundImageUrl] = useState<string | null>(null)
+  const [backgroundImageUrl, setBackgroundImageUrl] = useState<string | null>(
+    null
+  )
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const backgroundRef = useRef<HTMLDivElement>(null)
   const animationFrameRef = useRef<number | null>(null)
 
-  const isElementSource = source instanceof Element
+  const isElementSource =
+    typeof Element !== 'undefined' && source instanceof Element
 
   // --- Opacity Calculation ---
   useEffect(() => {
@@ -79,11 +86,15 @@ function Background({ source, scrollProgress = 0 }: BackgroundProps) {
     const findDefaultBackground = async () => {
       if (!source) {
         try {
-          const { detectBestBackgroundFormat } = await import('@/lib/get-default-background')
+          const { detectBestBackgroundFormat } = await import(
+            '@/lib/get-default-background'
+          )
           const bestFormat = await detectBestBackgroundFormat()
           setBackgroundImageUrl(bestFormat)
         } catch {
-          const { getDefaultBackgroundUrl } = await import('@/lib/get-default-background')
+          const { getDefaultBackgroundUrl } = await import(
+            '@/lib/get-default-background'
+          )
           setBackgroundImageUrl(getDefaultBackgroundUrl())
         }
       } else {
@@ -103,14 +114,28 @@ function Background({ source, scrollProgress = 0 }: BackgroundProps) {
 
         let newOpacity: number
         if (isDarkMode) {
-          newOpacity = mapRange(luminance, 0, 255, DARK_MODE_OPACITY_RANGE.min, DARK_MODE_OPACITY_RANGE.max)
+          newOpacity = mapRange(
+            luminance,
+            0,
+            255,
+            DARK_MODE_OPACITY_RANGE.min,
+            DARK_MODE_OPACITY_RANGE.max
+          )
         } else {
-          newOpacity = mapRange(luminance, 0, 255, LIGHT_MODE_OPACITY_RANGE.max, LIGHT_MODE_OPACITY_RANGE.min)
+          newOpacity = mapRange(
+            luminance,
+            0,
+            255,
+            LIGHT_MODE_OPACITY_RANGE.max,
+            LIGHT_MODE_OPACITY_RANGE.min
+          )
         }
         setOverlayOpacity(newOpacity)
       }
       void calculateAndSetOpacity()
-      return () => { isMounted = false }
+      return () => {
+        isMounted = false
+      }
     } else if (backgroundImageUrl && !source) {
       // Calculate opacity for default background
       let isMounted = true
@@ -120,14 +145,28 @@ function Background({ source, scrollProgress = 0 }: BackgroundProps) {
 
         let newOpacity: number
         if (isDarkMode) {
-          newOpacity = mapRange(luminance, 0, 255, DARK_MODE_OPACITY_RANGE.min, DARK_MODE_OPACITY_RANGE.max)
+          newOpacity = mapRange(
+            luminance,
+            0,
+            255,
+            DARK_MODE_OPACITY_RANGE.min,
+            DARK_MODE_OPACITY_RANGE.max
+          )
         } else {
-          newOpacity = mapRange(luminance, 0, 255, LIGHT_MODE_OPACITY_RANGE.max, LIGHT_MODE_OPACITY_RANGE.min)
+          newOpacity = mapRange(
+            luminance,
+            0,
+            255,
+            LIGHT_MODE_OPACITY_RANGE.max,
+            LIGHT_MODE_OPACITY_RANGE.min
+          )
         }
         setOverlayOpacity(newOpacity)
       }
       void calculateAndSetOpacity()
-      return () => { isMounted = false }
+      return () => {
+        isMounted = false
+      }
     } else {
       setOverlayOpacity(0.4) // Default for video/element-based backgrounds
     }
@@ -152,13 +191,22 @@ function Background({ source, scrollProgress = 0 }: BackgroundProps) {
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
 
-      const mediaWidth = source instanceof HTMLVideoElement ? source.videoWidth : source.naturalWidth
-      const mediaHeight = source instanceof HTMLVideoElement ? source.videoHeight : source.naturalHeight
+      const mediaWidth =
+        source instanceof HTMLVideoElement
+          ? source.videoWidth
+          : source.naturalWidth
+      const mediaHeight =
+        source instanceof HTMLVideoElement
+          ? source.videoHeight
+          : source.naturalHeight
 
       if (mediaWidth > 0 && mediaHeight > 0) {
         const canvasAspectRatio = canvas.width / canvas.height
         const mediaAspectRatio = mediaWidth / mediaHeight
-        let drawWidth = 0, drawHeight = 0, x = 0, y = 0
+        let drawWidth = 0,
+          drawHeight = 0,
+          x = 0,
+          y = 0
 
         if (canvasAspectRatio > mediaAspectRatio) {
           drawWidth = canvas.width
@@ -197,11 +245,16 @@ function Background({ source, scrollProgress = 0 }: BackgroundProps) {
       const fullRangeTop = movableDistance / 2
       const fullRangeBottom = -movableDistance / 2
 
-      const startTranslateY = fullRangeTop + (fullRangeBottom - fullRangeTop) * BACKGROUND_VISIBLE_START
-      const endTranslateY = fullRangeTop + (fullRangeBottom - fullRangeTop) * BACKGROUND_VISIBLE_END
+      const startTranslateY =
+        fullRangeTop +
+        (fullRangeBottom - fullRangeTop) * BACKGROUND_VISIBLE_START
+      const endTranslateY =
+        fullRangeTop + (fullRangeBottom - fullRangeTop) * BACKGROUND_VISIBLE_END
 
       // Invert the scroll direction
-      const newTranslateY = (endTranslateY + scrollProgress * (startTranslateY - endTranslateY)) * -1
+      const newTranslateY =
+        (endTranslateY + scrollProgress * (startTranslateY - endTranslateY)) *
+        -1
 
       element.style.transform = `scale(${BACKGROUND_ZOOM}) translateY(${newTranslateY}px)`
     }
@@ -264,4 +317,3 @@ function Background({ source, scrollProgress = 0 }: BackgroundProps) {
 }
 
 export default Background
-

@@ -23,12 +23,7 @@ import { PageHeadPreviewer } from '@/components/debug/PageHeadPreviewer'
 import { SideNav } from '@/components/SideNav'
 import { TopNav } from '@/components/TopNav'
 import { bootstrap } from '@/lib/bootstrap-client'
-import {
-  fathomConfig,
-  fathomId,
-  posthogConfig,
-  posthogId,
-} from '@/lib/config'
+import { fathomConfig, fathomId, posthogConfig, posthogId } from '@/lib/config'
 import { mapImageUrl } from '@/lib/map-image-url'
 import { AppContext } from '@/lib/context/app-context'
 import { Noto_Sans_KR } from 'next/font/google'
@@ -41,6 +36,22 @@ import localeConfig from '../site.locale.json'
 const SHOW_DEBUG_CONTROLS = false
 const SHOW_DEBUG_SOCIAL_IMAGE = false
 const SHOW_DEBUG_HEAD = false
+
+function getLocalizedRouteUrl(locale: string | undefined, asPath: string) {
+  const currentLocale = locale || localeConfig.defaultLocale
+  const cleanPath = asPath.split(/[?#]/)[0] || '/'
+
+  if (cleanPath === '/') {
+    return `/${currentLocale}`
+  }
+
+  const alreadyLocalized = localeConfig.localeList.some(
+    (locale) =>
+      cleanPath === `/${locale}` || cleanPath.startsWith(`/${locale}/`)
+  )
+
+  return alreadyLocalized ? cleanPath : `/${currentLocale}${cleanPath}`
+}
 
 const notoKR = Noto_Sans_KR({
   subsets: ['latin'],
@@ -60,7 +71,9 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
   const [showDesktopSideNav, setShowDesktopSideNav] = React.useState(false)
   const [mounted, setMounted] = React.useState(false)
   const [scrollProgress, setScrollProgress] = React.useState(0)
-  const [backgroundAsset, setBackgroundAsset] = React.useState<HTMLImageElement | HTMLVideoElement | string | null>(null)
+  const [backgroundAsset, setBackgroundAsset] = React.useState<
+    HTMLImageElement | HTMLVideoElement | string | null
+  >(null)
   const [isHeroPaused, setIsHeroPaused] = React.useState(false)
 
   React.useEffect(() => {
@@ -139,13 +152,15 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
     ? getBlockValue(recordMap?.block?.[pageId])
     : undefined
   const pageCover = pageBlockForCover?.format?.page_cover
-  
+
   // Check for category page cover image from pageInfo
   const pageInfo = siteMap && pageId ? siteMap.pageInfoMap[pageId] : null
   const categoryCoverImage = pageInfo?.coverImage
-  
+
   // Use category cover image if available, otherwise use recordMap cover
-  const notionImageUrl = categoryCoverImage || (pageBlockForCover ? mapImageUrl(pageCover, pageBlockForCover) : undefined)
+  const notionImageUrl =
+    categoryCoverImage ||
+    (pageBlockForCover ? mapImageUrl(pageCover, pageBlockForCover) : undefined)
 
   const [screenWidth, setScreenWidth] = React.useState(0)
   React.useEffect(() => {
@@ -162,12 +177,18 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
     let headerCount = 0
     for (const blockWrapper of Object.values(recordMap.block)) {
       const blockData = getBlockValue(blockWrapper)
-      if (blockData?.type === 'header' || blockData?.type === 'sub_header' || blockData?.type === 'sub_sub_header') {
+      if (
+        blockData?.type === 'header' ||
+        blockData?.type === 'sub_header' ||
+        blockData?.type === 'sub_sub_header'
+      ) {
         headerCount++
       }
     }
     const minTableOfContentsItems = 3
-    return headerCount >= minTableOfContentsItems && !isMobile && screenWidth >= 1200
+    return (
+      headerCount >= minTableOfContentsItems && !isMobile && screenWidth >= 1200
+    )
   }, [pageInfo, recordMap, isMobile, screenWidth])
 
   const paddingRight = showTOC ? '32rem' : '0'
@@ -176,12 +197,8 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
     setIsMobileMenuOpen(false)
   }, [])
 
-  if (!mounted) {
-    return null
-  }
-
   // Check if this is a 404 page
-  const is404Page = router.pathname === '/404';
+  const is404Page = router.pathname === '/404'
 
   if (!siteMap && !is404Page) {
     return <Component {...pageProps} />
@@ -192,69 +209,74 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
     pageInfo
   }
 
+  const pageUrl = getLocalizedRouteUrl(router.locale, router.asPath)
 
   // Determine page title and description based on route
-  const { pathname, query } = router;
-  let pageTitle = pageProps.site?.name || '';
-  let pageDescription = pageProps.site?.description || '';
-  
+  const { pathname, query } = router
+  let pageTitle = pageProps.site?.name || ''
+  let pageDescription = pageProps.site?.description || ''
+
   if (pathname === '/') {
-    pageTitle = pageProps.site?.name || '';
-    pageDescription = pageProps.site?.description || '';
+    pageTitle = pageProps.site?.name || ''
+    pageDescription = pageProps.site?.description || ''
   } else if (pathname === '/post/[...slug]') {
     const block = pageProps.pageId
       ? getBlockValue(pageProps.recordMap?.block?.[pageProps.pageId])
-      : undefined;
+      : undefined
     if (block && pageProps.recordMap) {
-      pageTitle = getBlockTitle(block, pageProps.recordMap);
-      
+      pageTitle = getBlockTitle(block, pageProps.recordMap)
+
       // Try to get description from siteMap's pageInfoMap first
       if (pageProps.siteMap?.pageInfoMap && pageProps.pageId) {
-        const pageInfo = pageProps.siteMap.pageInfoMap[pageProps.pageId];
+        const pageInfo = pageProps.siteMap.pageInfoMap[pageProps.pageId]
         if (pageInfo?.description) {
-          pageDescription = pageInfo.description;
+          pageDescription = pageInfo.description
         } else {
           // Fallback to block properties if description not in siteMap
-          const description = block.properties?.description?.[0]?.[0];
-          pageDescription = description || '';
+          const description = block.properties?.description?.[0]?.[0]
+          pageDescription = description || ''
         }
       } else {
         // Fallback to block properties if siteMap not available
-        const description = block.properties?.description?.[0]?.[0];
-        pageDescription = description || '';
+        const description = block.properties?.description?.[0]?.[0]
+        pageDescription = description || ''
       }
     } else {
-      pageTitle = pageProps.site?.name || '';
-      pageDescription = '';
+      pageTitle = pageProps.site?.name || ''
+      pageDescription = ''
     }
   } else if (pathname === '/category/[slug]') {
-    const slug = query.slug as string;
-    const locale = router.locale || localeConfig.defaultLocale;
-    
+    const slug = query.slug as string
+    const locale = router.locale || localeConfig.defaultLocale
+
     // Find the category page info by slug and locale
-    let categoryTitle = slug;
+    let categoryTitle = slug
     if (pageProps.siteMap?.pageInfoMap) {
       for (const [pageInfo] of Object.entries(pageProps.siteMap.pageInfoMap)) {
-        const page = pageInfo as any;
-        if (page.language === locale && page.slug === slug && page.type === 'Category') {
-          categoryTitle = page.title || slug;
-          break;
+        const page = pageInfo as any
+        if (
+          page.language === locale &&
+          page.slug === slug &&
+          page.type === 'Category'
+        ) {
+          categoryTitle = page.title || slug
+          break
         }
       }
     }
-    
+
     // Use translation with actual category title
-    pageTitle = t('seeCategoryList', { category: categoryTitle });
-    pageDescription = pageProps.site?.name || '';
+    pageTitle = t('seeCategoryList', { category: categoryTitle })
+    pageDescription = pageProps.site?.name || ''
   } else if (pathname === '/tag/[tag]') {
-    const tag = query.tag as string;
-    
+    const tag = query.tag as string
+
     // Use translation for tag title
-    pageTitle = t('seeTagList', { tag: '#' + tag });
-    pageDescription = pageProps.site?.name || '';
+    pageTitle = t('seeTagList', { tag: '#' + tag })
+    pageDescription = pageProps.site?.name || ''
   } else if (pathname === '/all-tags') {
-    pageTitle = t('seeAllTagsList');
-    pageDescription = pageProps.site?.name || '';
+    pageTitle = t('seeAllTagsList')
+    pageDescription = pageProps.site?.name || ''
   }
 
   return (
@@ -264,7 +286,7 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
         title={pageTitle}
         description={pageDescription}
         pageId={pageProps.pageId}
-        url={`/${router.locale}${router.asPath === '/' ? '' : router.asPath}`}
+        url={pageUrl}
       />
       {SHOW_DEBUG_CONTROLS && <GraphController />}
       {SHOW_DEBUG_SOCIAL_IMAGE && <SocialImagePreviewer />}
@@ -294,12 +316,14 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
       )}
 
       <div className={notoKR.variable}>
-        <div id="modal-root"></div>
+        <div id='modal-root'></div>
         <Background
           source={
-            router.pathname === '/' 
-              ? backgroundAsset 
-              : router.pathname === '/category/[slug]' && (pageProps as any).isDbPage && (pageProps as any).dbPageInfo?.coverImage
+            router.pathname === '/'
+              ? backgroundAsset
+              : router.pathname === '/category/[slug]' &&
+                  (pageProps as any).isDbPage &&
+                  (pageProps as any).dbPageInfo?.coverImage
                 ? (pageProps as any).dbPageInfo.coverImage
                 : notionImageUrl || null
           }
@@ -319,7 +343,10 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
             style={{
               position: 'fixed',
               top: 16,
-              left: showDesktopSideNav && siteMap ? 'calc(var(--sidenav-width) + 32px)' : 0,
+              left:
+                showDesktopSideNav && siteMap
+                  ? 'calc(var(--sidenav-width) + 32px)'
+                  : 0,
               right: 0,
               zIndex: 1000
             }}
@@ -337,7 +364,9 @@ function App({ Component, pageProps }: AppProps<types.PageProps>) {
         <div
           className={cs(showDesktopSideNav && styles.contentWithSideNav)}
           style={{
-            '--main-content-margin-left': showDesktopSideNav ? 'calc(var(--sidenav-width) + 32px)' : '0px',
+            '--main-content-margin-left': showDesktopSideNav
+              ? 'calc(var(--sidenav-width) + 32px)'
+              : '0px',
             display: 'flex',
             flexDirection: 'column',
             minHeight: '100vh',

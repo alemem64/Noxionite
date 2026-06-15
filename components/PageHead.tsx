@@ -1,9 +1,9 @@
 import Head from 'next/head'
-import { useState, useEffect } from 'react'
 
 import type * as types from '@/lib/context/types'
 import * as config from '@/lib/config'
 import { getSocialImageUrl } from '@/lib/get-social-image-url'
+import { absoluteUrl } from '@/lib/seo'
 
 export function PageHead({
   site,
@@ -17,23 +17,13 @@ export function PageHead({
   image?: string
   url?: string
 }) {
-  const [socialImageUrl, setSocialImageUrl] = useState(image)
+  const canonicalUrl = absoluteUrl(url || '/')
+  const socialImageUrl = absoluteUrl(image || getSocialImageUrl(url || '/'))
+  const rssFeedUrl = absoluteUrl('/feed')
+  const pageType = url?.includes('/post/') ? 'article' : 'website'
 
-  useEffect(() => {
-    async function fetchSocialImageUrl() {
-      if (url) {
-        const imageUrl = await getSocialImageUrl(url)
-        setSocialImageUrl(imageUrl || image)
-      }
-    }
-
-    void fetchSocialImageUrl()
-  }, [url, image])
-
-  const rssFeedUrl = `${config.host}/feed`
-
-  title = title ?? site?.name
-  description = description ?? site?.description
+  title = title || site?.name || config.name
+  description = description || site?.description || config.description
 
   return (
     <Head>
@@ -60,8 +50,8 @@ export function PageHead({
         key='theme-color-dark'
       />
 
-      <meta name='robots' content='index,follow' />
-      <meta property='og:type' content='website' />
+      <meta name='robots' content='index,follow,max-image-preview:large' />
+      <meta property='og:type' content={pageType} />
 
       {config.dnsRecord && (
         <meta name='google-site-verification' content={config.dnsRecord} />
@@ -70,7 +60,7 @@ export function PageHead({
       {site && (
         <>
           <meta property='og:site_name' content={site.name} />
-          <meta property='twitter:domain' content={site.domain} />
+          <meta name='twitter:domain' content={site.domain} />
         </>
       )}
 
@@ -86,26 +76,34 @@ export function PageHead({
         <>
           <meta name='twitter:card' content='summary_large_image' />
           <meta name='twitter:image' content={socialImageUrl} />
+          <meta name='twitter:image:alt' content={title} />
           <meta property='og:image' content={socialImageUrl} />
+          <meta property='og:image:secure_url' content={socialImageUrl} />
+          <meta property='og:image:width' content='1200' />
+          <meta property='og:image:height' content='630' />
+          <meta property='og:image:type' content='image/jpeg' />
+          <meta property='og:image:alt' content={title} />
         </>
       ) : (
         <meta name='twitter:card' content='summary' />
       )}
 
-      {url && (
+      {canonicalUrl && (
         <>
-          <link rel='canonical' href={url} />
-          <meta property='og:url' content={url} />
-          <meta property='twitter:url' content={url} />
+          <link rel='canonical' href={canonicalUrl} />
+          <meta property='og:url' content={canonicalUrl} />
+          <meta name='twitter:url' content={canonicalUrl} />
         </>
       )}
 
-      <link
-        rel='alternate'
-        type='application/rss+xml'
-        href={rssFeedUrl}
-        title={site?.name}
-      />
+      {rssFeedUrl && (
+        <link
+          rel='alternate'
+          type='application/rss+xml'
+          href={rssFeedUrl}
+          title={site?.name}
+        />
+      )}
 
       <meta property='og:title' content={title} />
       <meta name='twitter:title' content={title} />

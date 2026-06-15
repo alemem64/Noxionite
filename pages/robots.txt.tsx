@@ -3,7 +3,7 @@ import type { GetServerSideProps } from 'next'
 import { host } from '@/lib/config'
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  if (req.method !== 'GET') {
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.statusCode = 405
     res.setHeader('Content-Type', 'application/json')
     res.write(JSON.stringify({ error: 'method not allowed' }))
@@ -19,7 +19,9 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   res.setHeader('Content-Type', 'text/plain')
 
   // only allow the site to be crawlable on the production deployment
-  if (process.env.VERCEL_ENV === 'production') {
+  if (req.method === 'HEAD') {
+    res.end()
+  } else if (process.env.VERCEL_ENV === 'production') {
     res.write(`User-agent: *
 Allow: /
 Disallow: /api/get-tweet-ast/*
@@ -27,15 +29,15 @@ Disallow: /api/search-notion
 
 Sitemap: ${host}/sitemap.xml
 `)
+    res.end()
   } else {
     res.write(`User-agent: *
 Disallow: /
 
 Sitemap: ${host}/sitemap.xml
 `)
+    res.end()
   }
-
-  res.end()
 
   return {
     props: {}

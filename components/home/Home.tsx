@@ -8,7 +8,6 @@ import localeConfig from '../../site.locale.json'
 import type { PageInfo, PageProps } from '@/lib/context/types'
 
 import { NotionPage } from '../../components/NotionPage'
-import { PageHead } from '../../components/PageHead'
 import { UnifiedGraphView } from '../graph/UnifiedGraphView'
 import Hero from './Hero'
 import HomeNav from './HomeNav'
@@ -32,10 +31,11 @@ export function Home({
   const homePages = useMemo(() => {
     if (!siteMap) return []
     return Object.values(siteMap.pageInfoMap).filter(
-      (page: PageInfo) => page.type === 'Home' && page.language === currentLocale
+      (page: PageInfo) =>
+        page.type === 'Home' && page.language === currentLocale
     )
   }, [siteMap, currentLocale])
-  
+
   const getInitialTab = () => {
     if (homePages.length > 0 && homePages[0]) {
       return {
@@ -50,7 +50,9 @@ export function Home({
   }
 
   const [activeTab, setActiveTab] = useState<string>(getInitialTab().tab)
-  const [activeNotionPageId, setActiveNotionPageId] = useState<string | null>(getInitialTab().pageId)
+  const [activeNotionPageId, setActiveNotionPageId] = useState<string | null>(
+    getInitialTab().pageId
+  )
 
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth)
@@ -67,12 +69,12 @@ export function Home({
       if (currentPageInfo && currentPageInfo.type === 'Home') {
         // Look for equivalent page in new locale with same slug
         const equivalentPage = Object.values(siteMap.pageInfoMap).find(
-          (page: PageInfo) => 
-            page.type === 'Home' && 
-            page.language === currentLocale && 
+          (page: PageInfo) =>
+            page.type === 'Home' &&
+            page.language === currentLocale &&
             page.slug === currentPageInfo.slug
         )
-        
+
         if (equivalentPage) {
           // Found equivalent page, switch to it
           setActiveTab(equivalentPage.pageId)
@@ -104,26 +106,33 @@ export function Home({
   }, [activeNotionPageId, siteMap])
 
   const showTOC = useMemo(() => {
-    if (!activeNotionPageId || !homeRecordMaps?.[activeNotionPageId]) return false
-    
+    if (!activeNotionPageId || !homeRecordMaps?.[activeNotionPageId])
+      return false
+
     const recordMap = homeRecordMaps[activeNotionPageId]
     const pageInfo = siteMap ? siteMap.pageInfoMap[activeNotionPageId] : null
-    
+
     if (!pageInfo || !recordMap) return false
-    
+
     const isBlogPost = pageInfo.type === 'Home' || pageInfo.type === 'Post'
     if (!isBlogPost) return false
-    
+
     let headerCount = 0
     for (const blockWrapper of Object.values(recordMap.block)) {
       const blockData = getBlockValue(blockWrapper)
-      if (blockData?.type === 'header' || blockData?.type === 'sub_header' || blockData?.type === 'sub_sub_header') {
+      if (
+        blockData?.type === 'header' ||
+        blockData?.type === 'sub_header' ||
+        blockData?.type === 'sub_sub_header'
+      ) {
         headerCount++
       }
     }
-    
+
     const minTableOfContentsItems = 3
-    return headerCount >= minTableOfContentsItems && !isMobile && screenWidth >= 1200
+    return (
+      headerCount >= minTableOfContentsItems && !isMobile && screenWidth >= 1200
+    )
   }, [activeNotionPageId, homeRecordMaps, siteMap, isMobile, screenWidth])
 
   const handleNavClick = (tab: string, pageId?: string) => {
@@ -157,15 +166,18 @@ export function Home({
 
   const isNotionPageActive =
     activeNotionPageId && homeRecordMaps?.[activeNotionPageId]
-  
-  const activePageInfo = activeNotionPageId && siteMap ? siteMap.pageInfoMap[activeNotionPageId] : null
+
+  const activePageInfo =
+    activeNotionPageId && siteMap
+      ? siteMap.pageInfoMap[activeNotionPageId]
+      : null
 
   const renderTabs = () => {
     switch (activeTab) {
       case 'recentPosts':
         return <RecentPosts siteMap={siteMap} isMobile={isMobile} />
       case 'graphView':
-        return <UnifiedGraphView siteMap={siteMap} viewType="home" />
+        return <UnifiedGraphView siteMap={siteMap} viewType='home' />
       case 'allTags':
         return <TagList />
       default:
@@ -179,13 +191,6 @@ export function Home({
 
   return (
     <>
-      <PageHead
-        site={site}
-        title={site.name}
-        description={site.description}
-        url={`/${router.locale}${router.asPath === '/' ? '' : router.asPath}`}
-      />
-
       <div className={styles.homeContainer}>
         <Hero
           onAssetChange={setBackgroundAsset || (() => {})}
@@ -206,7 +211,11 @@ export function Home({
 
       {/* Render NotionPage outside the main container but with the same padding */}
       {isNotionPageActive && (
-        <div className={styles.homeNotionContainer} style={{ paddingRight: showTOC ? '32rem' : '5rem' }} data-is-home="true">
+        <div
+          className={styles.homeNotionContainer}
+          style={{ paddingRight: showTOC ? '32rem' : '5rem' }}
+          data-is-home='true'
+        >
           <NotionPage
             site={site}
             siteMap={siteMap}

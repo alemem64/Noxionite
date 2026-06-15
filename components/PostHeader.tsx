@@ -22,9 +22,9 @@ interface PostHeaderProps {
   hideCoverImage?: boolean
 }
 
-export function PostHeader({ 
-  block, 
-  recordMap, 
+export function PostHeader({
+  block,
+  recordMap,
   siteMap,
   isBlogPost,
   isMobile = false,
@@ -39,42 +39,26 @@ export function PostHeader({
 
   // Fetch social image when useOriginalCoverImage is false
   useEffect(() => {
-    if (!useOriginalCoverImage && url) {
-      setIsLoadingSocialImage(true)
-      
-      const fetchPromise = siteMap ? getSocialImageUrl(url) : getSocialImageUrl(url)
-      fetchPromise
-        .then(imageUrl => {
-          setSocialImageUrl(imageUrl)
-        })
-        .catch(err => {
-          console.error('[PostHeader] Failed to fetch social image:', err)
-          setSocialImageUrl(null)
-        })
-        .finally(() => {
-          setIsLoadingSocialImage(false)
-        })
-    } else if (!useOriginalCoverImage && !url && block?.id) {
-      // Fallback to old behavior if URL is not provided
-      setIsLoadingSocialImage(true)
-      
-      const fetchPromise = siteMap ? getSocialImageUrl(block.id) : getSocialImageUrl(block.id)
-      fetchPromise
-        .then(imageUrl => {
-          setSocialImageUrl(imageUrl)
-        })
-        .catch(err => {
-          console.error('[PostHeader] Failed to fetch social image (fallback):', err)
-          setSocialImageUrl(null)
-        })
-        .finally(() => {
-          setIsLoadingSocialImage(false)
-        })
+    if (!useOriginalCoverImage) {
+      const socialImage = url
+        ? getSocialImageUrl(url)
+        : block?.id
+          ? getSocialImageUrl(block.id)
+          : null
+
+      setSocialImageUrl(socialImage)
+      setIsLoadingSocialImage(false)
+    } else {
+      setSocialImageUrl(null)
+      setIsLoadingSocialImage(false)
     }
   }, [useOriginalCoverImage, url, block?.id, siteMap, block])
 
   // For 'full' variant, we require it to be a blog post from a collection
-  if (variant === 'full' && (!isBlogPost || !block || block.parent_table !== 'collection')) {
+  if (
+    variant === 'full' &&
+    (!isBlogPost || !block || block.parent_table !== 'collection')
+  ) {
     return null
   }
 
@@ -87,7 +71,7 @@ export function PostHeader({
   const title = getBlockTitle(block, recordMap)
   const authors = getPageProperty<string[]>('Authors', block, recordMap) || []
   const published = getPageProperty<number>('Published', block, recordMap)
-  
+
   // Tags logic remains the same...
   const tagsRaw = getPageProperty('Tags', block, recordMap)
   let tags: string[] = []
@@ -104,11 +88,15 @@ export function PostHeader({
         .map((tag: any) => tag.name || tag)
         .filter((tag: any) => typeof tag === 'string' && tag.trim().length > 0)
         .map((tag: any) => tag.trim())
-    } else if (tagObj.name && typeof tagObj.name === 'string' && tagObj.name.trim().length > 0) {
+    } else if (
+      tagObj.name &&
+      typeof tagObj.name === 'string' &&
+      tagObj.name.trim().length > 0
+    ) {
       tags = [tagObj.name.trim()]
     }
   }
-  
+
   const formattedPublished = published
     ? formatDate(published, { month: 'long' })
     : null
@@ -119,16 +107,14 @@ export function PostHeader({
   const coverPosition = pageBlock.format?.page_cover_position || 0.5
 
   // Determine which image to use
-  const effectiveCoverImageUrl = useOriginalCoverImage 
-    ? coverImageUrl 
+  const effectiveCoverImageUrl = useOriginalCoverImage
+    ? coverImageUrl
     : socialImageUrl || coverImageUrl
 
   return (
     <div className={cs(styles.header, isMobile && styles.mobile)}>
       {/* Title */}
-      <h1 className={styles.title}>
-        {title}
-      </h1>
+      <h1 className={styles.title}>{title}</h1>
 
       {/* Render metadata only for the 'full' variant */}
       {variant === 'full' && (
@@ -141,12 +127,18 @@ export function PostHeader({
                   {authors
                     .filter((name) => name && name.trim() !== '')
                     .map((authorName) => (
-                    <AuthorButton key={authorName} authorName={authorName} />
-                  ))}
+                      <AuthorButton key={authorName} authorName={authorName} />
+                    ))}
                 </div>
               )}
-              {authors.length > 0 && formattedPublished && <span className={styles.separator}>•</span>}
-              {formattedPublished && <span className={styles.publishedDate}>{formattedPublished}</span>}
+              {authors.length > 0 && formattedPublished && (
+                <span className={styles.separator}>•</span>
+              )}
+              {formattedPublished && (
+                <span className={styles.publishedDate}>
+                  {formattedPublished}
+                </span>
+              )}
             </div>
           )}
 
@@ -154,10 +146,7 @@ export function PostHeader({
           {tags.length > 0 && (
             <div className={styles.tagContainer}>
               {tags.map((tag, index) => (
-                <TagButton 
-                  key={index}
-                  tag={tag}
-                />
+                <TagButton key={index} tag={tag} />
               ))}
             </div>
           )}
@@ -166,7 +155,7 @@ export function PostHeader({
 
       {/* Cover Image */}
       {!hideCoverImage && effectiveCoverImageUrl && (
-        <div 
+        <div
           className={styles.coverImageContainer}
           style={{
             aspectRatio: imageAspectRatio ? `${imageAspectRatio}` : undefined,
@@ -174,7 +163,7 @@ export function PostHeader({
             borderRadius: imageAspectRatio ? '12px' : '0',
             boxShadow: imageAspectRatio
               ? '0 10px 30px rgba(0, 0, 0, 0.1)'
-              : 'none',
+              : 'none'
           }}
         >
           <Image
@@ -183,7 +172,9 @@ export function PostHeader({
             fill
             className={styles.coverImage}
             style={{
-              objectPosition: useOriginalCoverImage ? `center ${(1 - coverPosition) * 100}%` : 'center'
+              objectPosition: useOriginalCoverImage
+                ? `center ${(1 - coverPosition) * 100}%`
+                : 'center'
             }}
             onLoadingComplete={({ naturalWidth, naturalHeight }) => {
               if (naturalHeight > 0) {
@@ -191,14 +182,17 @@ export function PostHeader({
               }
             }}
             priority
-            sizes="(max-width: 1024px) 100vw, 800px"
+            sizes='(max-width: 1024px) 100vw, 800px'
           />
         </div>
       )}
-      
+
       {/* Loading state for social image */}
       {!hideCoverImage && !useOriginalCoverImage && isLoadingSocialImage && (
-        <div className={styles.coverImageContainer} style={{ height: '400px', opacity: 0.5 }}>
+        <div
+          className={styles.coverImageContainer}
+          style={{ height: '400px', opacity: 0.5 }}
+        >
           <div className={styles.loadingPlaceholder}>
             Loading social image...
           </div>

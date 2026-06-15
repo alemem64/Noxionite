@@ -1,11 +1,10 @@
 import type { GetServerSideProps } from 'next'
 
-import type { SiteMap } from '@/lib/context/types'
-import { host } from '@/lib/config'
 import { getSiteMap } from '@/lib/context/get-site-map'
+import { renderSitemapXml } from '@/lib/seo'
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  if (req.method !== 'GET') {
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.statusCode = 405
     res.setHeader('Content-Type', 'application/json')
     res.write(JSON.stringify({ error: 'method not allowed' }))
@@ -16,6 +15,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   }
 
   const siteMap = await getSiteMap()
+  const sitemap = renderSitemapXml(siteMap)
 
   // cache for up to 8 hours
   res.setHeader(
@@ -23,36 +23,15 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     'public, max-age=28800, stale-while-revalidate=28800'
   )
   res.setHeader('Content-Type', 'text/xml')
-  res.write(createSitemap(siteMap))
+  if (req.method !== 'HEAD') {
+    res.write(sitemap)
+  }
   res.end()
 
   return {
     props: {}
   }
 }
-
-const createSitemap = (siteMap: SiteMap) =>
-  `<?xml version="1.0" encoding="UTF-8"?>
-  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url>
-      <loc>${host}</loc>
-    </url>
-
-    <url>
-      <loc>${host}/</loc>
-    </url>
-
-    ${Object.keys(siteMap.canonicalPageMap)
-      .map((canonicalPagePath) =>
-        `
-          <url>
-            <loc>${host}/${canonicalPagePath}</loc>
-          </url>
-        `.trim()
-      )
-      .join('')}
-  </urlset>
-`
 
 export default function noop() {
   return null

@@ -1,21 +1,14 @@
 import type { GetServerSideProps } from 'next'
-import {
-  getBlockParentPage,
-  getBlockTitle,
-  getBlockValue,
-  getPageProperty,
-  idToUuid
-} from 'notion-utils'
 import RSS from 'rss'
 
 import * as config from '@/lib/config'
 import { getSiteMap } from '@/lib/context/get-site-map'
 import { getSocialImageUrl } from '@/lib/get-social-image-url'
 import { buildPageUrl } from '@/lib/context/build-page-url'
-import { notion } from '@/lib/notion-api'
+import { absoluteUrl } from '@/lib/seo'
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  if (req.method !== 'GET') {
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.statusCode = 405
     res.setHeader('Content-Type', 'application/json')
     res.write(JSON.stringify({ error: 'method not allowed' }))
@@ -35,41 +28,28 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     ttl: ttlMinutes
   })
 
-  for (const pagePath of Object.keys(siteMap.canonicalPageMap)) {
-    const pageId = siteMap.canonicalPageMap[pagePath]!
-    const recordMap = await notion.getPage(pageId)
-    if (!recordMap) continue
+  const posts = Object.values(siteMap.pageInfoMap)
+    .filter((pageInfo) => pageInfo.public && pageInfo.type === 'Post')
+    .sort((a, b) => {
+      const aTime = a.date ? new Date(a.date).getTime() : 0
+      const bTime = b.date ? new Date(b.date).getTime() : 0
+      return bTime - aTime
+    })
 
-    const keys = Object.keys(recordMap?.block || {})
-    const block = getBlockValue(recordMap?.block?.[keys[0]!])
-    if (!block) continue
-
-    const parentPage = getBlockParentPage(block, recordMap)
-    const isBlogPost =
-      block.type === 'page' &&
-      block.parent_table === 'collection' &&
-      parentPage?.id === (config.rootNotionPageId ? idToUuid(config.rootNotionPageId) : null)
-    if (!isBlogPost) {
-      continue
-    }
-
-    const title = getBlockTitle(block, recordMap) || config.name
-    const description =
-      getPageProperty<string>('Description', block, recordMap) ||
-      config.description
-    const url = pageId ? buildPageUrl(pageId, siteMap, []) : ''
-    const lastUpdatedTime = getPageProperty<number>(
-      'Last Updated',
-      block,
-      recordMap
+  for (const pageInfo of posts) {
+    const title = pageInfo.title || config.name
+    const description = pageInfo.description || config.description
+    const pageUrl = buildPageUrl(
+      pageInfo.pageId,
+      siteMap,
+      [],
+      pageInfo.language || config.language
     )
-    const publishedTime = getPageProperty<number>('Published', block, recordMap)
-    const date = lastUpdatedTime
-      ? new Date(lastUpdatedTime)
-      : publishedTime
-        ? new Date(publishedTime)
-        : new Date()
-    const socialImageUrl = await getSocialImageUrl(pageId)
+    const url = absoluteUrl(pageUrl) || config.host
+    const date = pageInfo.date
+      ? new Date(pageInfo.date)
+      : new Date(siteMap.lastUpdated)
+    const socialImageUrl = absoluteUrl(getSocialImageUrl(pageUrl))
 
     feed.item({
       title,
@@ -92,7 +72,9 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     `public, max-age=${ttlSeconds}, stale-while-revalidate=${ttlSeconds}`
   )
   res.setHeader('Content-Type', 'text/xml; charset=utf-8')
-  res.write(feedText)
+  if (req.method !== 'HEAD') {
+    res.write(feedText)
+  }
   res.end()
 
   return { props: {} }
