@@ -1,14 +1,15 @@
-import { getSiteMap } from '@/lib/context/get-site-map'
+import { site } from '@/lib/config'
+import { getCachedSiteMap } from '@/lib/context/site-cache'
+import { serializeSiteMapForPage } from '@/lib/context/client-site-map'
 import type { PageProps } from '@/lib/context/types'
 import { TagList } from '@/components/TagList'
 import styles from '@/styles/components/all-tags.module.css'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import nextI18NextConfig from '../next-i18next.config.cjs'
 import { useTranslation } from 'next-i18next'
-import { site } from '@/lib/config'
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
-  const siteMap = await getSiteMap()
+  const siteMap = await getCachedSiteMap()
   return {
     props: {
       ...(await serverSideTranslations(
@@ -17,10 +18,9 @@ export const getStaticProps = async ({ locale }: { locale: string }) => {
         nextI18NextConfig
       )),
       site,
-      siteMap,
+      siteMap: serializeSiteMapForPage(siteMap, locale),
       pageId: 'all-tags'
-    },
-    revalidate: 10
+    }
   }
 }
 

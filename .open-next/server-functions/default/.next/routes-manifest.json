@@ -1,0 +1,159 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "locale": false,
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/category/[slug]",
+      "regex": "^/category/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/category/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/post/[...slug]",
+      "regex": "^/post/(.+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/post/(?<nxtPslug>.+?)(?:/)?$"
+    },
+    {
+      "page": "/tag/[tag]",
+      "regex": "^/tag/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPtag": "nxtPtag"
+      },
+      "namedRegex": "^/tag/(?<nxtPtag>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/404",
+      "regex": "^/404(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/404(?:/)?$"
+    },
+    {
+      "page": "/all-tags",
+      "regex": "^/all\\-tags(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/all\\-tags(?:/)?$"
+    },
+    {
+      "page": "/feed",
+      "regex": "^/feed(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/feed(?:/)?$"
+    },
+    {
+      "page": "/robots.txt",
+      "regex": "^/robots\\.txt(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/robots\\.txt(?:/)?$"
+    },
+    {
+      "page": "/sitemap.xml",
+      "regex": "^/sitemap\\.xml(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/sitemap\\.xml(?:/)?$"
+    }
+  ],
+  "dataRoutes": [
+    {
+      "page": "/",
+      "dataRouteRegex": "^/_next/data/k_FUSp0MEgUE7fi4yuFI4/index\\.json$"
+    },
+    {
+      "page": "/404",
+      "dataRouteRegex": "^/_next/data/k_FUSp0MEgUE7fi4yuFI4/404\\.json$"
+    },
+    {
+      "page": "/all-tags",
+      "dataRouteRegex": "^/_next/data/k_FUSp0MEgUE7fi4yuFI4/all-tags\\.json$"
+    },
+    {
+      "page": "/category/[slug]",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "dataRouteRegex": "^/_next/data/k_FUSp0MEgUE7fi4yuFI4/category/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/k_FUSp0MEgUE7fi4yuFI4/category/(?<nxtPslug>[^/]+?)\\.json$"
+    },
+    {
+      "page": "/feed",
+      "dataRouteRegex": "^/_next/data/k_FUSp0MEgUE7fi4yuFI4/feed\\.json$"
+    },
+    {
+      "page": "/post/[...slug]",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "dataRouteRegex": "^/_next/data/k_FUSp0MEgUE7fi4yuFI4/post/(.+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/k_FUSp0MEgUE7fi4yuFI4/post/(?<nxtPslug>.+?)\\.json$"
+    },
+    {
+      "page": "/robots.txt",
+      "dataRouteRegex": "^/_next/data/k_FUSp0MEgUE7fi4yuFI4/robots.txt\\.json$"
+    },
+    {
+      "page": "/sitemap.xml",
+      "dataRouteRegex": "^/_next/data/k_FUSp0MEgUE7fi4yuFI4/sitemap.xml\\.json$"
+    },
+    {
+      "page": "/tag/[tag]",
+      "routeKeys": {
+        "nxtPtag": "nxtPtag"
+      },
+      "dataRouteRegex": "^/_next/data/k_FUSp0MEgUE7fi4yuFI4/tag/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/k_FUSp0MEgUE7fi4yuFI4/tag/(?<nxtPtag>[^/]+?)\\.json$"
+    }
+  ],
+  "i18n": {
+    "locales": [
+      "en",
+      "ko"
+    ],
+    "defaultLocale": "en"
+  },
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

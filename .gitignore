@@ -50,3 +50,4 @@ yarn-error.log*
 
 # cache
 .cache
+public/og-images/

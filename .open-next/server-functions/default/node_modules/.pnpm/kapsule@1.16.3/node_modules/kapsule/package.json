@@ -1,0 +1,65 @@
+{
+  "name": "kapsule",
+  "version": "1.16.3",
+  "description": "A closure based Web Component library",
+  "type": "module",
+  "unpkg": "dist/kapsule.min.js",
+  "jsdelivr": "dist/kapsule.min.js",
+  "main": "dist/kapsule.mjs",
+  "module": "dist/kapsule.mjs",
+  "types": "dist/kapsule.d.ts",
+  "exports": {
+    "types": "./dist/kapsule.d.ts",
+    "umd": "./dist/kapsule.min.js",
+    "default": "./dist/kapsule.mjs"
+  },
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vasturiano/kapsule.git"
+  },
+  "keywords": [
+    "kapsule",
+    "web",
+    "component",
+    "lifecycle",
+    "reusable",
+    "closure",
+    "d3js"
+  ],
+  "author": {
+    "name": "Vasco Asturiano",
+    "url": "https://github.com/vasturiano"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vasturiano/kapsule/issues"
+  },
+  "homepage": "https://github.com/vasturiano/kapsule",
+  "scripts": {
+    "build": "rimraf dist && rollup -c",
+    "dev": "rollup -w -c",
+    "prepare": "npm run build"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "dependencies": {
+    "lodash-es": "4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.36.0",
+    "rollup-plugin-dts": "^6.2.0",
+    "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=12"
+  }
+}

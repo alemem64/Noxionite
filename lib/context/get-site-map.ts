@@ -137,12 +137,13 @@ export const getSiteMap = async (): Promise<SiteMap> => {
   const navigationTree = buildNavigationTree(pageInfoMap)
   removeCircularDependencies(navigationTree) // This removes the circular 'parent' property
   const canonicalPageMap = buildCanonicalPageMap(pageInfoMap)
+  const lastUpdated = getStableLastUpdated(pageInfoMap)
   const tagGraphData = buildTagGraphData({
     site: config.site,
     pageInfoMap,
     navigationTree,
     canonicalPageMap,
-    lastUpdated: Date.now()
+    lastUpdated
   })
 
   return {
@@ -152,8 +153,21 @@ export const getSiteMap = async (): Promise<SiteMap> => {
     canonicalPageMap,
     tagGraphData,
     databaseInfoMap,
-    lastUpdated: Date.now()
+    lastUpdated
   }
+}
+
+function getStableLastUpdated(pageInfoMap: Record<string, PageInfo>): number {
+  const latestPageTime = Object.values(pageInfoMap).reduce((latest, page) => {
+    if (!page.date) {
+      return latest
+    }
+
+    const pageTime = new Date(page.date).getTime()
+    return Number.isNaN(pageTime) ? latest : Math.max(latest, pageTime)
+  }, 0)
+
+  return latestPageTime || 0
 }
 
 /**

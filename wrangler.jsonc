@@ -1,0 +1,15 @@
+// Cloudflare Workers + OpenNext (Vercel에서 이전, 2026-07-13)
+// 무료 플랜: 전 페이지 SSG라 worker CPU 사용이 라우팅 수준에 그친다.
+{
+  "name": "noxionite",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-07-13",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "routes": [
+    { "pattern": "noxionite.leapsignal.net", "custom_domain": true }
+  ]
+}

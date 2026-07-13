@@ -5,36 +5,14 @@ let siteMapCache: SiteMap | null = null
 let lastUpdated = 0
 let cacheUpdatePromise: Promise<SiteMap> | null = null
 
-const CACHE_DURATION_MS = 60_000 // 60 seconds
-const SKIP_SOCIAL_SYNC_LIFECYCLES = new Set(['build', 'postbuild'])
-
-function shouldSyncSocialImages() {
-  return (
-    typeof window === 'undefined' &&
-    process.env.NODE_ENV !== 'development' &&
-    !SKIP_SOCIAL_SYNC_LIFECYCLES.has(process.env.npm_lifecycle_event || '') &&
-    process.env.NEXT_PHASE !== 'phase-production-build'
-  )
-}
+const CACHE_DURATION_MS = 10 * 60_000
 
 async function fetchAndCacheSiteMap(): Promise<SiteMap> {
+  // Runtime social image sync(puppeteer) was removed for the Cloudflare Workers
+  // runtime — social images come from the build step (scripts/generate-og-images.tsx).
   const newSiteMap = await getSiteMap()
   siteMapCache = newSiteMap
   lastUpdated = Date.now()
-
-  // Trigger social image sync after site map update (server-side only)
-  if (shouldSyncSocialImages()) {
-    void (async () => {
-      try {
-        const { syncSocialImagesWithSiteMap } = await import(
-          '../og-images-manager'
-        )
-        await syncSocialImagesWithSiteMap(newSiteMap)
-      } catch (err) {
-        console.error('Failed to sync social images:', err)
-      }
-    })()
-  }
 
   return newSiteMap
 }

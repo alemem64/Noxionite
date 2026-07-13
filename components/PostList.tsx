@@ -1,7 +1,6 @@
 import * as React from 'react'
 import Link from 'next/link'
 
-import { mapImageUrl } from '@/lib/map-image-url'
 import type * as types from '@/lib/context/types'
 import styles from '@/styles/components/PostList.module.css'
 
@@ -45,17 +44,18 @@ const formatDate = (dateString: string | null) => {
 // PostCard component merged into PostList
 const PostCard = ({ post }: { post: PostListProps['posts'][0] }) => {
   const postUrl = `/post/${post.slug}`
+  const coverImageUrl = post.coverImage
 
   return (
     <Link href={postUrl} legacyBehavior>
       <a className={styles.cardLink}>
         <article className={styles.cardArticle}>
           {/* Cover Image */}
-          {post.coverImage && post.coverImageBlock && (
+          {coverImageUrl && (
             <div
               className={styles.cardCoverImage}
               style={{
-                backgroundImage: `url('${mapImageUrl(post.coverImage, post.coverImageBlock)}')`
+                backgroundImage: `url('${coverImageUrl}')`
               }}
             />
           )}

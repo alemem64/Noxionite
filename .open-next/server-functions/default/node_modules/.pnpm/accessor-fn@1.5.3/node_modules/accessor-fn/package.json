@@ -1,0 +1,59 @@
+{
+  "name": "accessor-fn",
+  "version": "1.5.3",
+  "description": "A wrapper function for object accessor properties",
+  "type": "module",
+  "jsdelivr": "dist/accessor-fn.min.js",
+  "unpkg": "dist/accessor-fn.min.js",
+  "main": "dist/accessor-fn.mjs",
+  "module": "dist/accessor-fn.mjs",
+  "types": "dist/accessor-fn.d.ts",
+  "exports": {
+    "types": "./dist/accessor-fn.d.ts",
+    "umd": "./dist/accessor-fn.min.js",
+    "default": "./dist/accessor-fn.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vasturiano/accessor-fn.git"
+  },
+  "keywords": [
+    "accessor",
+    "web",
+    "component",
+    "wrapper"
+  ],
+  "author": {
+    "name": "Vasco Asturiano",
+    "url": "https://github.com/vasturiano"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vasturiano/accessor-fn/issues"
+  },
+  "homepage": "https://github.com/vasturiano/accessor-fn",
+  "scripts": {
+    "build": "rimraf dist && rollup -c",
+    "dev": "rollup -w -c",
+    "prepare": "npm run build"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.36.0",
+    "rollup-plugin-dts": "^6.2.1",
+    "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=12"
+  }
+}

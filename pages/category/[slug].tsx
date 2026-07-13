@@ -5,10 +5,13 @@ import nextI18NextConfig from '../../next-i18next.config.cjs'
 
 import { CategoryPage } from '@/components/CategoryPage'
 import type * as types from '@/lib/context/types'
+import {
+  serializePageInfoForPage,
+  serializeSiteMapForPage
+} from '@/lib/context/client-site-map'
 import { getCachedSiteMap } from '@/lib/context/site-cache'
 import siteConfig from '../../site.config'
 
-import { site } from '@/lib/config'
 
 export interface CategoryPageProps {
   site: types.Site
@@ -109,13 +112,13 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
     return {
       paths,
-      fallback: 'blocking'
+      fallback: false
     }
   } catch (err) {
     console.error('Error generating category paths:', err)
     return {
       paths: [],
-      fallback: 'blocking'
+      fallback: false
     }
   }
 }
@@ -199,12 +202,11 @@ export const getStaticProps: GetStaticProps<
             nextI18NextConfig
           )),
           site: siteMap.site,
-          siteMap,
+          siteMap: serializeSiteMapForPage(siteMap, locale),
           pageId: dbId,
           isDbPage: true,
-          dbPageInfo
-        },
-        revalidate: site.isr?.revalidate ?? 60
+          dbPageInfo: serializePageInfoForPage(dbPageInfo)
+        }
       }
     }
 
@@ -227,8 +229,7 @@ export const getStaticProps: GetStaticProps<
 
     if (!categoryPageId || !categoryPageInfo) {
       return {
-        notFound: true,
-        revalidate: site.isr?.revalidate ?? 60
+        notFound: true
       }
     }
 
@@ -242,11 +243,10 @@ export const getStaticProps: GetStaticProps<
             nextI18NextConfig
           )),
           site: siteMap.site,
-          siteMap,
+          siteMap: serializeSiteMapForPage(siteMap, locale),
           pageId: categoryPageId,
           isPrivate: true
-        },
-        revalidate: site.isr?.revalidate ?? 60
+        }
       }
     }
 
@@ -258,16 +258,14 @@ export const getStaticProps: GetStaticProps<
           nextI18NextConfig
         )),
         site: siteMap.site,
-        siteMap,
+        siteMap: serializeSiteMapForPage(siteMap, locale),
         pageId: categoryPageId
-      },
-      revalidate: site.isr?.revalidate ?? 60
+      }
     }
   } catch (err) {
     console.error('Error fetching category page:', err)
     return {
-      notFound: true,
-      revalidate: site.isr?.revalidate ?? 60
+      notFound: true
     }
   }
 }

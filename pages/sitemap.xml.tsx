@@ -1,6 +1,6 @@
 import type { GetServerSideProps } from 'next'
 
-import { getSiteMap } from '@/lib/context/get-site-map'
+import { getCachedSiteMap } from '@/lib/context/site-cache'
 import { renderSitemapXml } from '@/lib/seo'
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
@@ -14,7 +14,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     }
   }
 
-  const siteMap = await getSiteMap()
+  const siteMap = await getCachedSiteMap()
   const sitemap = renderSitemapXml(siteMap)
 
   // cache for up to 8 hours

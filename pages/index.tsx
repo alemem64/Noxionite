@@ -1,11 +1,12 @@
+import { site } from '@/lib/config'
 import { type GetStaticProps } from 'next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import nextI18NextConfig from '../next-i18next.config.cjs'
 
 import type { ExtendedRecordMap, PageProps } from '@/lib/context/types'
 import { Home } from '@/components/home/Home'
-import { site } from '@/lib/config'
 import { getPage } from '@/lib/notion'
+import { serializeSiteMapForPage } from '@/lib/context/client-site-map'
 import { getCachedSiteMap } from '@/lib/context/site-cache'
 
 export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
@@ -46,11 +47,10 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
           nextI18NextConfig
         )),
         site,
-        siteMap,
+        siteMap: serializeSiteMapForPage(siteMap, locale),
         pageId: 'home', // Add pageId for TopNav to render
         homeRecordMaps
-      },
-      revalidate: site.isr?.revalidate ?? 60
+      }
     }
   } catch (err) {
     console.error('Error in getServerSideProps for locale:', locale, err)
@@ -65,8 +65,7 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
         site,
         siteMap: undefined,
         pageId: 'home' // Add pageId for TopNav to render
-      },
-      revalidate: site.isr?.revalidate ?? 60
+      }
     }
   }
 }

@@ -6,7 +6,7 @@ import nextI18NextConfig from '../../next-i18next.config.cjs'
 import { TagPage } from '@/components/TagPage'
 import type * as types from '@/lib/context/types'
 import { getCachedSiteMap } from '@/lib/context/site-cache'
-import { site } from '@/lib/config'
+import { serializeSiteMapForPage } from '@/lib/context/client-site-map'
 import siteConfig from '../../site.config'
 
 export interface TagPageProps {
@@ -60,13 +60,13 @@ export const getStaticPaths: GetStaticPaths = async (): Promise<any> => {
 
     return {
       paths,
-      fallback: 'blocking'
+      fallback: false
     }
   } catch (err) {
     console.error('Error generating tag paths:', err)
     return {
       paths: [],
-      fallback: 'blocking'
+      fallback: false
     }
   }
 }
@@ -83,6 +83,17 @@ export const getStaticProps: GetStaticProps<
 
     // Allow UTF-8 characters in tags
     const decodedTag = decodeURIComponent(tag)
+    const localeTagCounts =
+      siteMap.tagGraphData?.locales?.[locale]?.tagCounts || {}
+    const hasTag = Object.keys(localeTagCounts).some(
+      (siteTag) => siteTag.toLowerCase() === decodedTag.toLowerCase()
+    )
+
+    if (!hasTag) {
+      return {
+        notFound: true
+      }
+    }
 
     return {
       props: {
@@ -92,16 +103,14 @@ export const getStaticProps: GetStaticProps<
           nextI18NextConfig
         )),
         site: siteMap.site,
-        siteMap,
+        siteMap: serializeSiteMapForPage(siteMap, locale),
         tag: decodedTag
-      },
-      revalidate: site.isr?.revalidate ?? 60
+      }
     }
   } catch (err) {
     console.error('Error fetching tag page:', err)
     return {
-      notFound: true,
-      revalidate: site.isr?.revalidate ?? 60
+      notFound: true
     }
   }
 }

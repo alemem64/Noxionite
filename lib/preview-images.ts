@@ -1,5 +1,4 @@
 import ky from 'ky'
-import lqip from 'lqip-modern'
 import {
   type ExtendedRecordMap,
   type PreviewImage,
@@ -54,6 +53,8 @@ async function createPreviewImage(
     }
 
     const body = await ky(url).arrayBuffer()
+    // sharp 네이티브 모듈은 workerd에서 로드 불가 — 빌드(SSG) 시에만 lazy 로드한다 (2026-07-13)
+    const { default: lqip } = await import('lqip-modern')
     const result = await lqip(body)
 
     const previewImage = {

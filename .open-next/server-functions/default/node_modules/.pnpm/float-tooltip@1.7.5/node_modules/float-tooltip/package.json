@@ -1,0 +1,64 @@
+{
+  "name": "float-tooltip",
+  "version": "1.7.5",
+  "description": "Floating tooltip component",
+  "license": "MIT",
+  "type": "module",
+  "unpkg": "dist/float-tooltip.min.js",
+  "jsdelivr": "dist/float-tooltip.min.js",
+  "main": "dist/float-tooltip.mjs",
+  "module": "dist/float-tooltip.mjs",
+  "types": "dist/float-tooltip.d.ts",
+  "exports": {
+    "types": "./dist/float-tooltip.d.ts",
+    "umd": "./dist/float-tooltip.min.js",
+    "default": "./dist/float-tooltip.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vasturiano/float-tooltip.git"
+  },
+  "homepage": "https://github.com/vasturiano/float-tooltip",
+  "keywords": [
+    "tooltip",
+    "floating"
+  ],
+  "author": {
+    "name": "Vasco Asturiano",
+    "url": "https://github.com/vasturiano"
+  },
+  "bugs": {
+    "url": "https://github.com/vasturiano/float-tooltip/issues"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "rimraf dist && rollup -c",
+    "dev": "rollup -w -c rollup.config.dev.js",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "d3-selection": "2 - 3",
+    "kapsule": "^1.16",
+    "preact": "10"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.9",
+    "@babel/preset-env": "^7.26.9",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^28.0.2",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@types/react": "^19.0.10",
+    "postcss": "^8.5.3",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.34.8",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-postcss": "^4.0.2",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=12"
+  }
+}

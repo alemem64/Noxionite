@@ -1,21 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
+import { getSocialImageUrl } from '@/lib/get-social-image-url'
+
+// 하위 호환 shim: 구 URL로 들어온 요청을 빌드 시 생성된 정적 OG 이미지로 보낸다.
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const params = new URLSearchParams()
   const path =
     getQueryValue(req.query.path) || getQueryValue(req.query.url) || '/'
-  const title = getQueryValue(req.query.title)
-  const description = getQueryValue(req.query.description)
 
-  params.set('path', path)
-  if (title) params.set('title', title)
-  if (description) params.set('description', description)
-
-  res.redirect(307, `/api/og?${params.toString()}`)
+  res.redirect(307, getSocialImageUrl(path))
 }
 
 function getQueryValue(value: string | string[] | undefined): string | null {

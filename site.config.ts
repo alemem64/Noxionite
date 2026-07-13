@@ -9,7 +9,7 @@ export default siteConfig({
 
   // basic site info (required)
   name: 'Noxionite',
-  domain: 'noxionite.vercel.app',
+  domain: 'noxionite.leapsignal.net',
   author: 'Jaewan Shin',
 
   // open graph metadata (optional)

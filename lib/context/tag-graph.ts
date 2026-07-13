@@ -1,5 +1,5 @@
 import localeConfig from '../../site.locale.json'
-import type { SiteMap } from './types'
+import type { PageInfo, SiteMap } from './types'
 
 export interface LocaleTagGraphData {
   // Tag frequency counts for this locale
@@ -109,15 +109,31 @@ export function buildTagGraphData(siteMap: SiteMap): TagGraphData {
       tagRelationships: sortedTagRelationships,
       tagPages: sortedTagPages,
       totalPosts: relevantPages.length,
-      lastUpdated: Date.now()
+      lastUpdated: getStableLastUpdated(relevantPages, siteMap.lastUpdated)
     }
   }
 
   return {
     locales: localeData,
     totalPosts: pageInfos.length,
-    lastUpdated: Date.now()
+    lastUpdated: siteMap.lastUpdated
   }
+}
+
+function getStableLastUpdated(
+  pageInfos: PageInfo[],
+  fallbackLastUpdated: number
+): number {
+  const latestPageTime = pageInfos.reduce((latest, page) => {
+    if (!page.date) {
+      return latest
+    }
+
+    const pageTime = new Date(page.date).getTime()
+    return Number.isNaN(pageTime) ? latest : Math.max(latest, pageTime)
+  }, 0)
+
+  return latestPageTime || fallbackLastUpdated
 }
 
 export function getTopTags(

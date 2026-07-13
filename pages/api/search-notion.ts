@@ -5,7 +5,7 @@ import { getBlockTitle, getBlockValue } from 'notion-utils'
 import type * as types from '../../lib/context/types'
 import { buildPageUrl } from '../../lib/context/build-page-url'
 
-import { getSiteMap } from '../../lib/context/get-site-map'
+import { getCachedSiteMap } from '../../lib/context/site-cache'
 import { search } from '../../lib/notion'
 
 const buildBreadcrumbFromSiteMap = (
@@ -42,7 +42,7 @@ export default async function searchNotion(
   const searchParams: types.SearchParams = req.body
 
   // Fetch site map and search results
-  const siteMap = await getSiteMap()
+  const siteMap = await getCachedSiteMap()
   const results = await search(searchParams)
 
   // Use the recordMap from the search results to resolve titles

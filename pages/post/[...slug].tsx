@@ -5,9 +5,9 @@ import nextI18NextConfig from '../../next-i18next.config.cjs'
 
 import { NotionPage } from '@/components/NotionPage'
 import type * as types from '@/lib/context/types'
+import { serializeSiteMapForPage } from '@/lib/context/client-site-map'
 import { getCachedSiteMap } from '@/lib/context/site-cache'
 import { getPage } from '@/lib/notion'
-import { site } from '@/lib/config'
 import siteConfig from '../../site.config'
 
 export interface NestedPostPageProps {
@@ -73,12 +73,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
         return
       }
 
-      // Skip subpages - they are not in sitemap and handled dynamically
-      if (pageInfo.parentPageId) {
-        return
-      }
-
-      // Only generate paths for root pages (Post/Home type)
+      // 전체 SSG 전환(2026-07-13): subpage 포함 사이트맵의 모든 Post/Home을
+      // 빌드 시 생성한다. fallback: false라 빌드에 없는 경로는 404.
       if (page.type === 'Post' || page.type === 'Home') {
         siteConfig.locale.localeList.forEach((locale) => {
           if (page.language === locale) {
@@ -93,13 +89,13 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
     return {
       paths,
-      fallback: 'blocking'
+      fallback: false
     }
   } catch (err) {
     console.error('Error generating nested post paths:', err)
     return {
       paths: [],
-      fallback: 'blocking'
+      fallback: false
     }
   }
 }
@@ -142,8 +138,7 @@ export const getStaticProps: GetStaticProps<
       // Root page: /post/{slug} - must exist in sitemap
       if (!parentPostPageId || !parentPostPageInfo) {
         return {
-          notFound: true,
-          revalidate: site.isr?.revalidate ?? 60
+          notFound: true
         }
       }
       currentPageId = parentPostPageId
@@ -170,8 +165,7 @@ export const getStaticProps: GetStaticProps<
     const pageInfo = siteMap.pageInfoMap[currentPageId]
     if (pageInfo?.public === false) {
       return {
-        notFound: true,
-        revalidate: site.isr?.revalidate ?? 60
+        notFound: true
       }
     }
 
@@ -183,18 +177,16 @@ export const getStaticProps: GetStaticProps<
           nextI18NextConfig
         )),
         site: siteMap.site,
-        siteMap,
+        siteMap: serializeSiteMapForPage(siteMap, locale),
         pageId: currentPageId,
         recordMap,
         slugPath: slug
-      },
-      revalidate: site.isr?.revalidate ?? 60
+      }
     }
   } catch (err) {
     console.error('Error fetching nested post page:', err)
     return {
-      notFound: true,
-      revalidate: site.isr?.revalidate ?? 60
+      notFound: true
     }
   }
 }

@@ -1,0 +1,17 @@
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/api/generate-social-image": "pages/api/generate-social-image.js",
+  "/api/manifest": "pages/api/manifest.js",
+  "/api/search-notion": "pages/api/search-notion.js",
+  "/404": "pages/404.js",
+  "/category/[slug]": "pages/category/[slug].js",
+  "/all-tags": "pages/all-tags.js",
+  "/feed": "pages/feed.js",
+  "/sitemap.xml": "pages/sitemap.xml.js",
+  "/": "pages/index.js",
+  "/robots.txt": "pages/robots.txt.js",
+  "/tag/[tag]": "pages/tag/[tag].js",
+  "/post/[...slug]": "pages/post/[...slug].js"
+}

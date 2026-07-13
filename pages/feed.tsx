@@ -2,7 +2,7 @@ import type { GetServerSideProps } from 'next'
 import RSS from 'rss'
 
 import * as config from '@/lib/config'
-import { getSiteMap } from '@/lib/context/get-site-map'
+import { getCachedSiteMap } from '@/lib/context/site-cache'
 import { getSocialImageUrl } from '@/lib/get-social-image-url'
 import { buildPageUrl } from '@/lib/context/build-page-url'
 import { absoluteUrl } from '@/lib/seo'
@@ -16,7 +16,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     return { props: {} }
   }
 
-  const siteMap = await getSiteMap()
+  const siteMap = await getCachedSiteMap()
   const ttlMinutes = 24 * 60 // 24 hours
   const ttlSeconds = ttlMinutes * 60
 
