@@ -1,10 +1,11 @@
 /**
- * 빌드된 HTML(.next/server/pages)에서 각 페이지의 og 메타를 읽어
+ * 빌드된 HTML(.next/server/pages)에서 각 페이지의 경로를 읽어
  * OG 이미지를 satori로 사전 생성한다 → public/og-images/*.png
  *
- * 디자인은 구 pages/api/og.tsx(next/og ImageResponse)를 그대로 이식했다.
- * Cloudflare Workers에는 edge runtime API route를 둘 수 없어(OpenNext 제약)
- * 런타임 생성 대신 빌드 시 생성으로 전환 (2026-07-13).
+ * 디자인은 구 puppeteer 방식의 components/SocialCard.tsx를 그대로 재사용한다
+ * (커버 이미지 배경 + breadcrumb + author + tags + 날짜).
+ * Cloudflare Workers에는 edge/puppeteer 런타임을 둘 수 없어(OpenNext 제약)
+ * 빌드 시 생성으로 전환 (2026-07-13, SocialCard 재사용 2026-07-14).
  *
  * 실행: 빌드 후 자동 (package.json postbuild)
  */
@@ -14,215 +15,96 @@ import * as React from 'react'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import pMap from 'p-map'
 import satori from 'satori'
 
+import { SocialCard } from '../components/SocialCard'
+import { getCachedSiteMap } from '../lib/context/site-cache'
 import siteConfig from '../site.config'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const PAGES_DIR = path.join(ROOT, '.next', 'server', 'pages')
 const OUT_DIR = path.join(ROOT, 'public', 'og-images')
-
-const size = { width: 1200, height: 630 }
-
 const FONT_DIR = path.join(
   ROOT,
   'node_modules',
-  '@fontsource',
-  'noto-sans-kr',
-  'files'
+  '@expo-google-fonts',
+  'noto-sans-kr'
 )
 
+const size = { width: 1200, height: 630 }
+
 async function loadFonts() {
-  // fontsource 파일명이 버전에 따라 다르므로 디렉토리에서 직접 찾는다
-  const files = await fs.readdir(FONT_DIR)
-  const pick = (weight: number) => {
-    const name = files.find(
-      (f) => f.includes(`-${weight}-normal.woff`) && !f.endsWith('.woff2')
-    )
-    return name ? fs.readFile(path.join(FONT_DIR, name)) : null
-  }
   const [w400, w700, w900] = await Promise.all([
-    pick(400),
-    pick(700),
-    pick(900)
+    fs.readFile(path.join(FONT_DIR, '400Regular', 'NotoSansKR_400Regular.ttf')),
+    fs.readFile(path.join(FONT_DIR, '700Bold', 'NotoSansKR_700Bold.ttf')),
+    fs.readFile(path.join(FONT_DIR, '900Black', 'NotoSansKR_900Black.ttf'))
   ])
-  const fonts = []
-  if (w400)
-    fonts.push({
+  return [
+    {
       name: 'Noto Sans KR',
       data: w400,
       weight: 400 as const,
       style: 'normal' as const
-    })
-  if (w700)
-    fonts.push({
+    },
+    {
       name: 'Noto Sans KR',
       data: w700,
       weight: 700 as const,
       style: 'normal' as const
-    })
-  if (w900)
-    fonts.push({
+    },
+    {
       name: 'Noto Sans KR',
       data: w900,
       weight: 900 as const,
       style: 'normal' as const
-    })
-  if (fonts.length === 0)
-    throw new Error(`No usable .woff fonts found in ${FONT_DIR}`)
-  return fonts
+    }
+  ]
 }
 
-function clampText(value: string, maxLength: number): string {
-  const normalized = value.replace(/\s+/g, ' ').trim()
-  return normalized.length > maxLength
-    ? `${normalized.slice(0, maxLength - 1)}...`
-    : normalized
-}
+// 1x1 투명 PNG — 이미지 fetch 실패 시 빈 이미지로 대체해 카드 생성 자체는 계속한다
+const TRANSPARENT_PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+  'base64'
+)
 
-function getTitleFontSize(title: string): number {
-  if (title.length <= 18) return 82
-  if (title.length <= 34) return 68
-  if (title.length <= 52) return 56
-  return 48
-}
+// satori는 이미지 URL마다 fetch를 호출한다 — 같은 이미지(아이콘/아바타/커버) 반복
+// 요청을 메모이즈하고, 실패는 투명 PNG로 대체한다.
+function installFetchCache() {
+  const cache = new Map<string, Promise<ArrayBuffer>>()
+  const realFetch = globalThis.fetch.bind(globalThis)
 
-function OgCard({
-  title,
-  description,
-  pathLabel,
-  type
-}: {
-  title: string
-  description: string
-  pathLabel: string
-  type: string
-}) {
-  return (
-    <div
-      style={{
-        ...size,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        padding: 72,
-        background:
-          'linear-gradient(135deg, #111827 0%, #164e63 46%, #f8fafc 100%)',
-        color: '#f8fafc',
-        fontFamily: 'Noto Sans KR',
-        position: 'relative',
-        overflow: 'hidden'
-      }}
-    >
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background:
-            'linear-gradient(90deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.46))'
-        }}
-      />
+  globalThis.fetch = (async (input: any, init?: any) => {
+    const url = typeof input === 'string' ? input : input?.url
+    const isImageGet =
+      typeof url === 'string' &&
+      url.startsWith('http') &&
+      (!init || !init.method || init.method === 'GET')
 
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          position: 'relative',
-          zIndex: 1
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 18,
-            fontSize: 30,
-            fontWeight: 800
-          }}
-        >
-          <div
-            style={{
-              width: 54,
-              height: 54,
-              borderRadius: 14,
-              background: '#f8fafc',
-              color: '#0f172a',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 30,
-              fontWeight: 900
-            }}
-          >
-            {siteConfig.name.slice(0, 1).toUpperCase()}
-          </div>
-          <span>{siteConfig.name}</span>
-        </div>
+    if (!isImageGet) return realFetch(input, init)
 
-        <div
-          style={{
-            border: '1px solid rgba(248, 250, 252, 0.42)',
-            borderRadius: 999,
-            padding: '10px 18px',
-            fontSize: 24,
-            fontWeight: 700,
-            color: '#dbeafe'
-          }}
-        >
-          {type}
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 24,
-          maxWidth: 930,
-          position: 'relative',
-          zIndex: 1
-        }}
-      >
-        <div
-          style={{
-            fontSize: getTitleFontSize(title),
-            lineHeight: 1.08,
-            fontWeight: 900,
-            letterSpacing: 0
-          }}
-        >
-          {title}
-        </div>
-        <div
-          style={{
-            fontSize: 32,
-            lineHeight: 1.34,
-            color: '#dbeafe',
-            maxWidth: 880
-          }}
-        >
-          {description}
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          position: 'relative',
-          zIndex: 1,
-          color: '#cbd5e1',
-          fontSize: 24,
-          fontWeight: 650
-        }}
-      >
-        <span>{siteConfig.domain}</span>
-        <span>{pathLabel}</span>
-      </div>
-    </div>
-  )
+    if (!cache.has(url)) {
+      cache.set(
+        url,
+        realFetch(url)
+          .then(async (res) => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`)
+            return res.arrayBuffer()
+          })
+          .catch(() => {
+            console.warn(
+              `[og-images] image fetch failed, using blank: ${url.slice(0, 120)}`
+            )
+            return TRANSPARENT_PNG.buffer.slice(
+              TRANSPARENT_PNG.byteOffset,
+              TRANSPARENT_PNG.byteOffset + TRANSPARENT_PNG.byteLength
+            )
+          })
+      )
+    }
+    const body = await cache.get(url)!
+    return new Response(body!.slice(0), { status: 200 })
+  }) as typeof fetch
 }
 
 async function collectHtmlFiles(dir: string): Promise<string[]> {
@@ -243,17 +125,17 @@ async function collectHtmlFiles(dir: string): Promise<string[]> {
 
 function decodeHtmlEntities(value: string): string {
   return value
-    .replace(/&#x([\dA-Fa-f]+);/g, (_, hex) =>
+    .replaceAll(/&#x([\dA-Fa-f]+);/g, (_, hex) =>
       String.fromCodePoint(Number.parseInt(hex, 16))
     )
-    .replace(/&#(\d+);/g, (_, dec) =>
+    .replaceAll(/&#(\d+);/g, (_, dec) =>
       String.fromCodePoint(Number.parseInt(dec, 10))
     )
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;|&apos;/g, "'")
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
+    .replaceAll('&quot;', '"')
+    .replaceAll(/&#39;|&apos;/g, "'")
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>')
+    .replaceAll('&amp;', '&')
 }
 
 function extractMeta(html: string, property: string): string | undefined {
@@ -269,7 +151,11 @@ function extractMeta(html: string, property: string): string | undefined {
 }
 
 async function main() {
+  installFetchCache()
   const fonts = await loadFonts()
+  const siteMap = await getCachedSiteMap()
+  const baseUrl = `https://${siteConfig.domain}`
+
   const htmlFiles = await collectHtmlFiles(PAGES_DIR)
   if (htmlFiles.length === 0) {
     throw new Error(
@@ -278,59 +164,60 @@ async function main() {
   }
 
   await fs.mkdir(OUT_DIR, { recursive: true })
-  const generated = new Set<string>()
-  let count = 0
+  const seen = new Set<string>()
+  const targets: Array<{ fileName: string; pagePath: string }> = []
 
   for (const file of htmlFiles) {
     const html = await fs.readFile(file, 'utf8')
     const image = extractMeta(html, 'og:image')
-    if (!image) continue
-    const match = image.match(/\/og-images\/([^/?"]+\.png)/)
-    if (!match) continue
-    const fileName = match[1]
-    if (generated.has(fileName)) continue
-    generated.add(fileName)
+    const match = image?.match(/\/og-images\/([^/?"]+\.png)/)
+    if (!match || seen.has(match[1])) continue
+    seen.add(match[1])
 
-    const title = clampText(
-      extractMeta(html, 'og:title') || siteConfig.name,
-      90
-    )
-    const description = clampText(
-      extractMeta(html, 'og:description') ||
-        siteConfig.description ||
-        'Notion-powered blog',
-      150
-    )
-    const ogType =
-      extractMeta(html, 'og:type') === 'article' ? 'Article' : 'Website'
     const ogUrl = extractMeta(html, 'og:url') || '/'
-    let pathLabel = '/'
+    let pagePath = '/'
     try {
-      pathLabel = clampText(
-        new URL(ogUrl, `https://${siteConfig.domain}`).pathname,
-        80
-      )
+      pagePath = new URL(ogUrl, baseUrl).pathname
     } catch {
       /* 기본값 유지 */
     }
-
-    const svg = await satori(
-      <OgCard
-        title={title}
-        description={description}
-        pathLabel={pathLabel}
-        type={ogType}
-      />,
-      { ...size, fonts }
-    )
-    const png = new Resvg(svg, { fitTo: { mode: 'width', value: size.width } })
-      .render()
-      .asPng()
-    await fs.writeFile(path.join(OUT_DIR, fileName), png)
-    count++
+    targets.push({ fileName: match[1], pagePath })
   }
 
-  console.log(`[og-images] generated ${count} images → public/og-images`)
+  let failures = 0
+  await pMap(
+    targets,
+    async ({ fileName, pagePath }) => {
+      try {
+        const svg = await satori(
+          <SocialCard
+            url={pagePath}
+            siteMap={siteMap}
+            baseUrl={baseUrl}
+            disableGlobalStyles
+          />,
+          { ...size, fonts }
+        )
+        const png = new Resvg(svg, {
+          fitTo: { mode: 'width', value: size.width }
+        })
+          .render()
+          .asPng()
+        await fs.writeFile(path.join(OUT_DIR, fileName), png)
+      } catch (err) {
+        failures++
+        console.error(`[og-images] failed for ${pagePath}:`, err)
+      }
+    },
+    { concurrency: 4 }
+  )
+
+  console.log(
+    `[og-images] generated ${targets.length - failures}/${targets.length} images → public/og-images`
+  )
+  if (failures > 0) {
+    throw new Error(`[og-images] ${failures} images failed`)
+  }
 }
 
 // eslint-disable-next-line unicorn/prefer-top-level-await -- tsconfig target이 TLA를 지원하지 않는다

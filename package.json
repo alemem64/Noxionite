@@ -76,6 +76,7 @@
     "vis-network": "^10.0.1"
   },
   "devDependencies": {
+    "@expo-google-fonts/noto-sans-kr": "^0.4.3",
     "@fisch0920/config": "^1.1.2",
     "@fontsource/noto-sans-kr": "^5.2.9",
     "@next/bundle-analyzer": "15.5.9",

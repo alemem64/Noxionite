@@ -123,6 +123,9 @@ importers:
         specifier: ^10.0.1
         version: 10.0.2(@egjs/hammerjs@2.0.17)(component-emitter@2.0.0)(keycharm@0.4.0)(uuid@13.0.0)(vis-data@8.0.3(uuid@13.0.0)(vis-util@6.0.0(@egjs/hammerjs@2.0.17)(component-emitter@2.0.0)))(vis-util@6.0.0(@egjs/hammerjs@2.0.17)(component-emitter@2.0.0))
     devDependencies:
+      '@expo-google-fonts/noto-sans-kr':
+        specifier: ^0.4.3
+        version: 0.4.3
       '@fisch0920/config':
         specifier: ^1.1.2
         version: 1.3.1(@typescript-eslint/parser@8.44.1(eslint@9.36.0)(typescript@5.9.2))(eslint@9.36.0)(prettier@3.6.2)(typescript@5.9.2)(zod@3.25.76)
@@ -1011,6 +1014,9 @@ packages:
   '@eslint/plugin-kit@0.3.5':
     resolution: {integrity: sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@expo-google-fonts/noto-sans-kr@0.4.3':
+    resolution: {integrity: sha512-EVS/uJPcf1TgJtjmQmrFr0oGdcl7ml09CSu0E/AyGzR0UfzdR2pBbzWWPsnuzZiGUl643ODYwYiXK5+B+fLjhQ==}
 
   '@fisch0920/config@1.3.1':
     resolution: {integrity: sha512-Y0dP6PIAZIfE4uGWjfPA9EOUeJXTh8WRGEtP/BG9xv9fE+Xu4x7ZODa9IJhycbThc0wcgNk+mzXVqhRsQnWlSw==}
@@ -5981,6 +5987,8 @@ snapshots:
     dependencies:
       '@eslint/core': 0.15.2
       levn: 0.4.1
+
+  '@expo-google-fonts/noto-sans-kr@0.4.3': {}
 
   '@fisch0920/config@1.3.1(@typescript-eslint/parser@8.44.1(eslint@9.36.0)(typescript@5.9.2))(eslint@9.36.0)(prettier@3.6.2)(typescript@5.9.2)(zod@3.25.76)':
     dependencies:

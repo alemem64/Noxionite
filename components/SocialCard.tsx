@@ -1,11 +1,75 @@
 import React from 'react'
-import { MdOutlineAccountTree, MdKeyboardArrowRight } from 'react-icons/md'
-import { FaTag, FaTags } from 'react-icons/fa'
 import { getDefaultBackgroundUrl } from '../lib/get-default-background'
 import siteConfig from '../site.config'
 import localeConfig from '../site.locale.json'
 import { parseUrlPathname } from '../lib/context/url-parser'
 import type { SiteMap, PageInfo } from '../lib/context/types'
+
+// satori 호환을 위해 react-icons 대신 동일 path 데이터의 인라인 SVG 사용 (2026-07-14)
+type InlineIconProps = { style?: React.CSSProperties }
+
+const svgStyleSize = (style?: React.CSSProperties, fallback = 24) => {
+  const px = style?.fontSize
+    ? Number.parseInt(String(style.fontSize), 10) || fallback
+    : fallback
+  return px
+}
+
+const MdKeyboardArrowRight: React.FC<InlineIconProps> = ({ style }) => {
+  const sizePx = svgStyleSize(style, 20)
+  return (
+    <svg
+      width={sizePx}
+      height={sizePx}
+      viewBox='0 0 24 24'
+      fill={String(style?.color || 'currentColor')}
+    >
+      <path d='M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z' />
+    </svg>
+  )
+}
+
+const MdOutlineAccountTree: React.FC<InlineIconProps> = ({ style }) => {
+  const sizePx = svgStyleSize(style, 72)
+  return (
+    <svg
+      width={sizePx}
+      height={sizePx}
+      viewBox='0 0 24 24'
+      fill={String(style?.color || 'rgba(255, 255, 255, 0.9)')}
+    >
+      <path d='M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3h7zM7 9H4V5h3v4zm10 6h3v4h-3v-4zm0-10h3v4h-3V5z' />
+    </svg>
+  )
+}
+
+const FaTag: React.FC<InlineIconProps> = ({ style }) => {
+  const sizePx = svgStyleSize(style, 64)
+  return (
+    <svg
+      width={sizePx}
+      height={sizePx}
+      viewBox='0 0 512 512'
+      fill={String(style?.color || 'rgba(255, 255, 255, 0.9)')}
+    >
+      <path d='M0 252.118V48C0 21.49 21.49 0 48 0h204.118a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882L293.823 497.941c-18.745 18.745-49.137 18.745-67.882 0L14.059 286.059A48 48 0 0 1 0 252.118zM112 64c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48z' />
+    </svg>
+  )
+}
+
+const FaTags: React.FC<InlineIconProps> = ({ style }) => {
+  const sizePx = svgStyleSize(style, 64)
+  return (
+    <svg
+      width={sizePx}
+      height={sizePx}
+      viewBox='0 0 640 512'
+      fill={String(style?.color || 'rgba(255, 255, 255, 0.9)')}
+    >
+      <path d='M497.941 225.941L286.059 14.059A48 48 0 0 0 252.118 0H48C21.49 0 0 21.49 0 48v204.118a48 48 0 0 0 14.059 33.941l211.882 211.882c18.744 18.745 49.136 18.746 67.882 0l204.118-204.118c18.745-18.745 18.745-49.137 0-67.882zM112 160c-26.51 0-48-21.49-48-48s21.49-48 48-48 48 21.49 48 48-21.49 48-48 48zm513.941 133.823L421.823 497.941c-18.745 18.745-49.137 18.745-67.882 0l-.36-.36L527.64 323.522c16.999-16.999 26.36-39.6 26.36-63.64s-9.362-46.641-26.36-63.64L331.397 0h48.721a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882z' />
+    </svg>
+  )
+}
 
 // Common components
 const Background: React.FC<{
@@ -350,12 +414,15 @@ export interface SocialCardProps {
   siteMap?: SiteMap
   imageUrl?: string
   baseUrl?: string
+  /** satori(빌드 시 OG 생성)는 <style> 태그를 지원하지 않는다 (2026-07-14) */
+  disableGlobalStyles?: boolean
 }
 
 export const SocialCard: React.FC<SocialCardProps> = ({
   url,
   siteMap,
-  baseUrl
+  baseUrl,
+  disableGlobalStyles = false
 }) => {
   const globalStyles = `
     * {
@@ -736,7 +803,13 @@ export const SocialCard: React.FC<SocialCardProps> = ({
               }}
             >
               <TitleIcon icon={<MdOutlineAccountTree />} text={title} />
-              <div style={{ position: 'absolute', bottom: '-150px' }}>
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '-150px',
+                  display: 'flex'
+                }}
+              >
                 <PillText
                   iconUrl={iconUrl}
                   text={siteConfig.name}
@@ -763,7 +836,13 @@ export const SocialCard: React.FC<SocialCardProps> = ({
               }}
             >
               <TitleIcon icon={<FaTag />} text={`#${decodedTag}`} />
-              <div style={{ position: 'absolute', bottom: '-150px' }}>
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '-150px',
+                  display: 'flex'
+                }}
+              >
                 <PillText
                   iconUrl={iconUrl}
                   text={siteConfig.name}
@@ -787,7 +866,13 @@ export const SocialCard: React.FC<SocialCardProps> = ({
               }}
             >
               <TitleIcon icon={<FaTags />} text={'All Tags'} />
-              <div style={{ position: 'absolute', bottom: '-150px' }}>
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '-150px',
+                  display: 'flex'
+                }}
+              >
                 <PillText
                   iconUrl={iconUrl}
                   text={siteConfig.name}
@@ -805,6 +890,10 @@ export const SocialCard: React.FC<SocialCardProps> = ({
           </Background>
         )
     }
+  }
+
+  if (disableGlobalStyles) {
+    return renderContent()
   }
 
   return (
