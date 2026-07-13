@@ -12,7 +12,10 @@ export default withBundleAnalyzer({
   // OpenNext(Cloudflare) 번들이 workerd 조건으로 ofetch/dist/index.mjs를 요구하는데
   // 기본 트레이싱은 Node 엔트리만 복사하므로 dist 전체를 포함시킨다 (2026-07-13)
   outputFileTracingIncludes: {
-    '*': ['./node_modules/.pnpm/ofetch@*/node_modules/ofetch/dist/**']
+    '*': [
+      './node_modules/.pnpm/ofetch@*/node_modules/ofetch/dist/**',
+      './node_modules/ofetch/dist/**'
+    ]
   },
   i18n: {
     locales: locale.localeList,
