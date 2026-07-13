@@ -41,12 +41,35 @@ async function loadFonts() {
     )
     return name ? fs.readFile(path.join(FONT_DIR, name)) : null
   }
-  const [w400, w700, w900] = await Promise.all([pick(400), pick(700), pick(900)])
+  const [w400, w700, w900] = await Promise.all([
+    pick(400),
+    pick(700),
+    pick(900)
+  ])
   const fonts = []
-  if (w400) fonts.push({ name: 'Noto Sans KR', data: w400, weight: 400 as const, style: 'normal' as const })
-  if (w700) fonts.push({ name: 'Noto Sans KR', data: w700, weight: 700 as const, style: 'normal' as const })
-  if (w900) fonts.push({ name: 'Noto Sans KR', data: w900, weight: 900 as const, style: 'normal' as const })
-  if (fonts.length === 0) throw new Error(`No usable .woff fonts found in ${FONT_DIR}`)
+  if (w400)
+    fonts.push({
+      name: 'Noto Sans KR',
+      data: w400,
+      weight: 400 as const,
+      style: 'normal' as const
+    })
+  if (w700)
+    fonts.push({
+      name: 'Noto Sans KR',
+      data: w700,
+      weight: 700 as const,
+      style: 'normal' as const
+    })
+  if (w900)
+    fonts.push({
+      name: 'Noto Sans KR',
+      data: w900,
+      weight: 900 as const,
+      style: 'normal' as const
+    })
+  if (fonts.length === 0)
+    throw new Error(`No usable .woff fonts found in ${FONT_DIR}`)
   return fonts
 }
 
@@ -83,7 +106,8 @@ function OgCard({
         flexDirection: 'column',
         justifyContent: 'space-between',
         padding: 72,
-        background: 'linear-gradient(135deg, #111827 0%, #164e63 46%, #f8fafc 100%)',
+        background:
+          'linear-gradient(135deg, #111827 0%, #164e63 46%, #f8fafc 100%)',
         color: '#f8fafc',
         fontFamily: 'Noto Sans KR',
         position: 'relative',
@@ -94,7 +118,8 @@ function OgCard({
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(90deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.46))'
+          background:
+            'linear-gradient(90deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.46))'
         }}
       />
 
@@ -107,7 +132,15 @@ function OgCard({
           zIndex: 1
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 18, fontSize: 30, fontWeight: 800 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 18,
+            fontSize: 30,
+            fontWeight: 800
+          }}
+        >
           <div
             style={{
               width: 54,
@@ -151,10 +184,26 @@ function OgCard({
           zIndex: 1
         }}
       >
-        <div style={{ fontSize: getTitleFontSize(title), lineHeight: 1.08, fontWeight: 900, letterSpacing: 0 }}>
+        <div
+          style={{
+            fontSize: getTitleFontSize(title),
+            lineHeight: 1.08,
+            fontWeight: 900,
+            letterSpacing: 0
+          }}
+        >
           {title}
         </div>
-        <div style={{ fontSize: 32, lineHeight: 1.34, color: '#dbeafe', maxWidth: 880 }}>{description}</div>
+        <div
+          style={{
+            fontSize: 32,
+            lineHeight: 1.34,
+            color: '#dbeafe',
+            maxWidth: 880
+          }}
+        >
+          {description}
+        </div>
       </div>
 
       <div
@@ -194,8 +243,12 @@ async function collectHtmlFiles(dir: string): Promise<string[]> {
 
 function decodeHtmlEntities(value: string): string {
   return value
-    .replace(/&#x([\dA-Fa-f]+);/g, (_, hex) => String.fromCodePoint(Number.parseInt(hex, 16)))
-    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number.parseInt(dec, 10)))
+    .replace(/&#x([\dA-Fa-f]+);/g, (_, hex) =>
+      String.fromCodePoint(Number.parseInt(hex, 16))
+    )
+    .replace(/&#(\d+);/g, (_, dec) =>
+      String.fromCodePoint(Number.parseInt(dec, 10))
+    )
     .replace(/&quot;/g, '"')
     .replace(/&#39;|&apos;/g, "'")
     .replace(/&lt;/g, '<')
@@ -219,7 +272,9 @@ async function main() {
   const fonts = await loadFonts()
   const htmlFiles = await collectHtmlFiles(PAGES_DIR)
   if (htmlFiles.length === 0) {
-    throw new Error(`No built HTML found under ${PAGES_DIR} — run next build first`)
+    throw new Error(
+      `No built HTML found under ${PAGES_DIR} — run next build first`
+    )
   }
 
   await fs.mkdir(OUT_DIR, { recursive: true })
@@ -236,25 +291,41 @@ async function main() {
     if (generated.has(fileName)) continue
     generated.add(fileName)
 
-    const title = clampText(extractMeta(html, 'og:title') || siteConfig.name, 90)
+    const title = clampText(
+      extractMeta(html, 'og:title') || siteConfig.name,
+      90
+    )
     const description = clampText(
-      extractMeta(html, 'og:description') || siteConfig.description || 'Notion-powered blog',
+      extractMeta(html, 'og:description') ||
+        siteConfig.description ||
+        'Notion-powered blog',
       150
     )
-    const ogType = extractMeta(html, 'og:type') === 'article' ? 'Article' : 'Website'
+    const ogType =
+      extractMeta(html, 'og:type') === 'article' ? 'Article' : 'Website'
     const ogUrl = extractMeta(html, 'og:url') || '/'
     let pathLabel = '/'
     try {
-      pathLabel = clampText(new URL(ogUrl, `https://${siteConfig.domain}`).pathname, 80)
+      pathLabel = clampText(
+        new URL(ogUrl, `https://${siteConfig.domain}`).pathname,
+        80
+      )
     } catch {
       /* 기본값 유지 */
     }
 
     const svg = await satori(
-      <OgCard title={title} description={description} pathLabel={pathLabel} type={ogType} />,
+      <OgCard
+        title={title}
+        description={description}
+        pathLabel={pathLabel}
+        type={ogType}
+      />,
       { ...size, fonts }
     )
-    const png = new Resvg(svg, { fitTo: { mode: 'width', value: size.width } }).render().asPng()
+    const png = new Resvg(svg, { fitTo: { mode: 'width', value: size.width } })
+      .render()
+      .asPng()
     await fs.writeFile(path.join(OUT_DIR, fileName), png)
     count++
   }

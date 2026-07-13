@@ -12,7 +12,6 @@ import {
 import { getCachedSiteMap } from '@/lib/context/site-cache'
 import siteConfig from '../../site.config'
 
-
 export interface CategoryPageProps {
   site: types.Site
   siteMap: types.SiteMap

@@ -51,3 +51,8 @@ yarn-error.log*
 # cache
 .cache
 public/og-images/
+
+# Cloudflare/OpenNext build artifacts
+.open-next/
+.wrangler/
+.cache/
