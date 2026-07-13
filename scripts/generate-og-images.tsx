@@ -333,7 +333,4 @@ async function main() {
   console.log(`[og-images] generated ${count} images → public/og-images`)
 }
 
-main().catch((err) => {
-  console.error('[og-images] failed:', err)
-  process.exit(1)
-})
+await main()
