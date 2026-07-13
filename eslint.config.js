@@ -2,6 +2,16 @@ import { config } from '@fisch0920/config/eslint'
 import nextPlugin from '@next/eslint-plugin-next'
 
 export default [
+  // Cloudflare 이전(2026-07-13): 빌드 산출물과 어댑터 설정은 lint 제외
+  // (open-next.config.ts는 @cloudflare/workers-types를 끌어와 typed lint 메모리를 폭증시킨다)
+  {
+    ignores: [
+      '.open-next/**',
+      '.wrangler/**',
+      'open-next.config.ts',
+      'public/og-images/**'
+    ]
+  },
   ...config,
   {
     files: ['**/*.cjs'],

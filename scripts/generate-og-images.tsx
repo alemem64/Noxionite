@@ -333,4 +333,8 @@ async function main() {
   console.log(`[og-images] generated ${count} images → public/og-images`)
 }
 
-await main()
+// eslint-disable-next-line unicorn/prefer-top-level-await -- tsconfig target이 TLA를 지원하지 않는다
+void main().catch((err: unknown) => {
+  console.error('[og-images] failed:', err)
+  process.exitCode = 1
+})
