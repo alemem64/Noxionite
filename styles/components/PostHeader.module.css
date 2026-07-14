@@ -74,3 +74,15 @@
   font-size: 1.2rem;
   border-radius: 12px;
 }
+
+
+/* 모바일 폰트 소폭 축소 (2026-07-14) */
+@media only screen and (max-width: 720px) {
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .metadataRow {
+    font-size: 0.875rem;
+  }
+}

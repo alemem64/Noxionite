@@ -265,7 +265,7 @@ function Background({ source, scrollProgress = 0 }: BackgroundProps) {
     left: 0,
     top: 0,
     width: '100%',
-    height: '100vh',
+    height: '100%',
     transition: 'transform 0.3s ease-out'
   }
 
@@ -282,6 +282,8 @@ function Background({ source, scrollProgress = 0 }: BackgroundProps) {
         position: 'fixed',
         width: '100vw',
         height: '100vh',
+        // 모바일 주소창 수축 시 100vh보다 커지는 뷰포트까지 커버 (미지원 브라우저는 무시)
+        minHeight: '100lvh',
         zIndex: -1,
         overflow: 'hidden'
       }}

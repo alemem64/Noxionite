@@ -294,6 +294,18 @@
   margin: 0.5rem 0;
 }
 
+/* 모바일: 화면보다 넓은 표는 페이지를 밀지 말고 열 안에서 줄바꿈/스크롤 (2026-07-14)
+   — 페이지 가로 스크롤이 생기면 fixed 배경(100vw)이 못 덮는 흰 영역이 노출된다.
+   PC는 기존 렌더링 유지를 위해 미디어쿼리 안에만 적용한다. */
+@media only screen and (max-width: 720px) {
+  .notion-page .notion-simple-table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 
 
 @media only screen and (max-width: 1024px) {
@@ -309,6 +321,24 @@
   
   .notion {
     --notion-max-width: calc(100vw - 2rem);
+    /* 모바일 폰트 소폭 축소 (2026-07-14) */
+    font-size: 15px;
+  }
+
+  .notion-page {
+    font-size: 15px;
+  }
+
+  .notion-h1 {
+    font-size: 1.6em;
+  }
+
+  .notion-h2 {
+    font-size: 1.35em;
+  }
+
+  .notion-h3 {
+    font-size: 1.15em;
   }
 }
 

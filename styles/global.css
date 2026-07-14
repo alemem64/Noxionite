@@ -75,6 +75,11 @@ html {
   margin: 0;
 }
 
+html {
+  /* 모바일에서 body의 overflow-x: hidden만으로는 가로 넘침을 못 막는다 (2026-07-14) */
+  overflow-x: clip;
+}
+
 body {
   --notion-font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
