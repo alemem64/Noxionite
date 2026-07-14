@@ -150,7 +150,7 @@ export default siteConfig({
     {
       name: 'Jaewan Shin', // Author name
       avatar_dir: '/authors/Jzahnny.jpeg', // Author avatar image path in public folder (28px x 28px recommended)
-      home_url: 'https://jzahnny.vercel.app/' // Author home URL
+      home_url: 'https://jzahnny.leapsignal.net/' // Author home URL
     }
   ],
 
