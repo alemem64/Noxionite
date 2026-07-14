@@ -56,7 +56,7 @@ export function FooterImpl({ isMobile }: { isMobile: boolean }) {
             }}
           >
             <a
-              href='https://noxionite.vercel.app'
+              href='https://noxionite.leapsignal.net'
               target='_blank'
               rel='noopener noreferrer'
               style={{

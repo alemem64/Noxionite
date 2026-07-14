@@ -24,7 +24,7 @@ export default siteConfig({
     {
       type: 'video',
       src: 'https://pub-95020314d8e64caea687d48c69c6cd9b.r2.dev/noxionite-shiny-short.mov',
-      url: 'https://noxionite.vercel.app/',
+      url: 'https://noxionite.leapsignal.net/',
       content: {
         en: {
           title: 'Noxionite',
@@ -39,7 +39,7 @@ export default siteConfig({
     {
       type: 'video',
       src: 'https://pub-95020314d8e64caea687d48c69c6cd9b.r2.dev/notion-compatible.mp4',
-      url: 'https://noxionite.vercel.app/post/features-notion',
+      url: 'https://noxionite.leapsignal.net/post/features-notion',
       content: {
         en: {
           title: '1. Perfect Notion Compatibility',
@@ -69,7 +69,7 @@ export default siteConfig({
     {
       type: 'video',
       src: 'https://pub-95020314d8e64caea687d48c69c6cd9b.r2.dev/unlimited-nested-category.mp4',
-      url: 'https://noxionite.vercel.app/post/fetures-folder-category',
+      url: 'https://noxionite.leapsignal.net/post/fetures-folder-category',
       content: {
         en: {
           title: '3. Unlimited Nested Categories',
@@ -85,7 +85,7 @@ export default siteConfig({
     {
       type: 'video',
       src: 'https://pub-95020314d8e64caea687d48c69c6cd9b.r2.dev/graph-view.mp4',
-      url: 'https://noxionite.vercel.app/post/features-graph-view',
+      url: 'https://noxionite.leapsignal.net/post/features-graph-view',
       content: {
         en: {
           title: '4. Graph View',
@@ -100,7 +100,7 @@ export default siteConfig({
     {
       type: 'video',
       src: 'https://pub-95020314d8e64caea687d48c69c6cd9b.r2.dev/glassmorphism.mp4',
-      url: 'https://noxionite.vercel.app/post/fetures-glassmorphism',
+      url: 'https://noxionite.leapsignal.net/post/fetures-glassmorphism',
       content: {
         en: {
           title: '5. Captivating Glassmorphism',
@@ -116,7 +116,7 @@ export default siteConfig({
     {
       type: 'video',
       src: 'https://pub-95020314d8e64caea687d48c69c6cd9b.r2.dev/multi-language.mp4',
-      url: 'https://noxionite.vercel.app/post/fetures-multilanguage',
+      url: 'https://noxionite.leapsignal.net/post/fetures-multilanguage',
       content: {
         en: {
           title: '6. 23+ Language Translation Support',

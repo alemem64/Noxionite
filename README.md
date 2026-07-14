@@ -5,7 +5,7 @@
 ![SCR-20250824-kvxf](https://github.com/user-attachments/assets/9237e080-a604-468e-b2e1-e7ec40e64b14)
 
 # Demo
-https://noxionite.vercel.app/
+https://noxionite.leapsignal.net/
 
 # 1. Overview
 
@@ -23,7 +23,7 @@ Noxionite is a powerful blog engine that turns your Notion posts into a personal
 
 Based on [react-notion-x](https://github.com/NotionX/react-notion-x), you can use all of Notion's blocks.
 
-Learn more: https://noxionite.vercel.app/en/post/features-notion
+Learn more: https://noxionite.leapsignal.net/en/post/features-notion
 
 ## 2.2. Extremely fast routing with ISR
 
@@ -37,7 +37,7 @@ Pages are pre-rendered at build time and Notion pages are updated every 60 secon
 
 You can organize your blog in a folder-like structure with endless categories.
 
-Learn more: https://noxionite.vercel.app/en/post/features-notion
+Learn more: https://noxionite.leapsignal.net/en/post/features-notion
 
 ## 2.4. Automatic table of contents management
 
@@ -87,7 +87,7 @@ It is completely open source and free to use under the MIT license.
 
 Please check the link below for installation instructions.
 
-[https://noxionite.vercel.app/en/post/setup](https://noxionite.vercel.app/post/setup)
+[https://noxionite.leapsignal.net/en/post/setup](https://noxionite.leapsignal.net/post/setup)
 
 [If the above link does not work, see this page.](https://alemem64.notion.site/Getting-Started-259f2d475c318068a84bfa73776fcda7)
 
