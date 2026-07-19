@@ -76,8 +76,7 @@ html {
 }
 
 html {
-  /* 모바일에서 body의 overflow-x: hidden만으로는 가로 넘침을 못 막는다 (2026-07-14) */
-  overflow-x: clip;
+  width: 100%;
 }
 
 body {
@@ -85,6 +84,7 @@ body {
     'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
     'Droid Sans', 'Helvetica Neue', 'Noto Sans', sans-serif;
   font-family: var(--notion-font);
+  width: 100%;
   overflow-x: hidden;
   background-color: var(--bg-color) !important;
   --header-height: 60px;

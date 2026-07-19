@@ -286,6 +286,10 @@ export default function Hero({
     setIsHeld(false)
   }, [])
 
+  const handlePointerCancel = useCallback(() => {
+    setIsHeld(false)
+  }, [])
+
   if (!heroAssets || heroAssets.length === 0) {
     return null
   }
@@ -299,6 +303,7 @@ export default function Hero({
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerLeave}
+      onPointerCancel={handlePointerCancel}
       onContextMenu={(e) => e.preventDefault()}
       style={{ touchAction: 'pan-y' }} // Allow vertical scroll on mobile
     >

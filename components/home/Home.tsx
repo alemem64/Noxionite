@@ -167,6 +167,8 @@ export function Home({
   const isNotionPageActive =
     activeNotionPageId && homeRecordMaps?.[activeNotionPageId]
 
+  const homeNotionPaddingRight = showTOC && !isMobile ? '32rem' : '0'
+
   const activePageInfo =
     activeNotionPageId && siteMap
       ? siteMap.pageInfoMap[activeNotionPageId]
@@ -213,7 +215,7 @@ export function Home({
       {isNotionPageActive && (
         <div
           className={styles.homeNotionContainer}
-          style={{ paddingRight: showTOC ? '32rem' : '5rem' }}
+          style={{ paddingRight: homeNotionPaddingRight }}
           data-is-home='true'
         >
           <NotionPage
