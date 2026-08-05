@@ -1,6 +1,8 @@
 import { NotionAPI } from 'notion-client'
 import type { ExtendedRecordMap } from 'notion-types'
 
+const notionUserAgent = process.env.NOTION_API_USER_AGENT || 'Noxionite/1.0'
+
 type RecordMapLike = Partial<
   ExtendedRecordMap & {
     team?: Record<string, unknown>
@@ -89,5 +91,10 @@ class NoxioniteNotionAPI extends NotionAPI {
 
 export const notion = new NoxioniteNotionAPI({
   authToken: process.env.NOTION_TOKEN_V2,
-  apiBaseUrl: process.env.NOTION_API_BASE_URL
+  apiBaseUrl: process.env.NOTION_API_BASE_URL,
+  ofetchOptions: {
+    headers: {
+      'User-Agent': notionUserAgent
+    }
+  }
 })
