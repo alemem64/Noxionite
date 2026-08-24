@@ -1,14 +1,8 @@
 # Cloudflare Workers + OpenNext 배포 (Vercel에서 이전, 2026-07-13)
-# - main push: 코드 변경 배포
-# - schedule: 6시간마다 재빌드 → 데모 Notion 콘텐츠 반영
-# - workflow_dispatch: 즉시 반영용 수동 실행
+# - workflow_dispatch: 필요할 때만 실행하는 수동 배포
 name: Deploy
 
 on:
-  push:
-    branches: [main]
-  schedule:
-    - cron: "37 */6 * * *"
   workflow_dispatch:
 
 concurrency: deploy-production
